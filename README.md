@@ -20,6 +20,13 @@ The calculation method and the assist level percentages come from the setup guid
 ## Requirements
 - Android 8.0+ (API 26)
 
+## Install
+Download the APK from the [releases](https://github.com/th3-s1nc/Setup-Calculator-for-Avinox/releases) and open it on your phone.
+
+## Troubleshooting (installing the APK)
+- **"App blocked to protect your device" (Google Play Protect):** tap *More details*, then *Install anyway*. Play Protect does not know the signing key of this open-source app yet.
+- **"For your security, your phone is not allowed to install unknown apps from this source":** tap *Settings* in that message, allow the browser or file manager you opened the APK with, then go back and install.
+
 ## Build
 Open the project folder in Android Studio, wait for the Gradle sync, press Run. You need Android SDK Platform 35 and JDK 17 or newer (the JDK bundled with Android Studio is enough). Tests: `./gradlew test`.
 

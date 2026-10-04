@@ -20,6 +20,13 @@ Rechenweg und Assist-Level-Werte stammen aus dem Setup-Guide von Bernd Hemmersba
 ## Voraussetzungen
 - Android 8.0+ (API 26)
 
+## Installieren
+Die APK aus den [Releases](https://github.com/th3-s1nc/Setup-Calculator-for-Avinox/releases) herunterladen und auf dem Handy öffnen.
+
+## Fehlerbehebung (APK installieren)
+- **„App wurde zum Schutz deines Geräts blockiert“ (Google Play Protect):** *Weitere Details* antippen, dann *Trotzdem installieren*. Play Protect kennt den Signaturschlüssel dieser Open-Source-App noch nicht.
+- **„Aus Sicherheitsgründen kannst du auf dem Smartphone keine unbekannten Apps aus dieser Quelle installieren“:** in der Meldung *Einstellungen* antippen, den Browser oder Dateimanager erlauben, mit dem du die APK geöffnet hast, dann zurück und installieren.
+
 ## Bauen
 Projektordner in Android Studio öffnen, Gradle-Sync abwarten, Run drücken. Nötig sind Android SDK Platform 35 und JDK 17 oder neuer (das in Android Studio mitgelieferte JDK reicht). Tests: `./gradlew test`.
 
