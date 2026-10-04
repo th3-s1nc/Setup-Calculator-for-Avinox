@@ -1,0 +1,27 @@
+# Build
+*.iml
+.gradle/
+.kotlin/
+/build/
+/app/build/
+/app/release/
+/app/debug/
+/captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# IDE
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Signing keys and secrets: NEVER commit these
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# Logs
+*.log

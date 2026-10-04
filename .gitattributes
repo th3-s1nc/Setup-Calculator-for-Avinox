@@ -1,2 +1,5 @@
-# Auto detect text files and perform LF normalization
+# Zeilenenden: gradlew braucht LF, auch wenn unter Windows eingecheckt wird
 * text=auto
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary

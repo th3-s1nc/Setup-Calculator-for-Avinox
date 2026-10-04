@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Drei Schieberegler mit Knöpfen an steigender Position, in den Farben von ECO, TRAIL und TURBO -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Regler 1 -->
+    <path android:fillColor="#2E2E33" android:pathData="M33,38h42a2,2 0,0 1,0 4h-42a2,2 0,0 1,0 -4z" />
+    <path android:fillColor="#2FCB7A" android:pathData="M33,38h9a2,2 0,0 1,0 4h-9a2,2 0,0 1,0 -4z" />
+    <path android:fillColor="#2FCB7A" android:pathData="M38,40a6,6 0,1 0,12 0a6,6 0,1 0,-12 0z" />
+    <path android:fillColor="#0E0E10" android:pathData="M41.8,40a2.2,2.2 0,1 0,4.4 0a2.2,2.2 0,1 0,-4.4 0z" />
+    <!-- Regler 2 -->
+    <path android:fillColor="#2E2E33" android:pathData="M33,52h42a2,2 0,0 1,0 4h-42a2,2 0,0 1,0 -4z" />
+    <path android:fillColor="#F2A93B" android:pathData="M33,52h22a2,2 0,0 1,0 4h-22a2,2 0,0 1,0 -4z" />
+    <path android:fillColor="#F2A93B" android:pathData="M51,54a6,6 0,1 0,12 0a6,6 0,1 0,-12 0z" />
+    <path android:fillColor="#0E0E10" android:pathData="M54.8,54a2.2,2.2 0,1 0,4.4 0a2.2,2.2 0,1 0,-4.4 0z" />
+    <!-- Regler 3 -->
+    <path android:fillColor="#2E2E33" android:pathData="M33,66h42a2,2 0,0 1,0 4h-42a2,2 0,0 1,0 -4z" />
+    <path android:fillColor="#FF5A2B" android:pathData="M33,66h35a2,2 0,0 1,0 4h-35a2,2 0,0 1,0 -4z" />
+    <path android:fillColor="#FF5A2B" android:pathData="M64,68a6,6 0,1 0,12 0a6,6 0,1 0,-12 0z" />
+    <path android:fillColor="#0E0E10" android:pathData="M67.8,68a2.2,2.2 0,1 0,4.4 0a2.2,2.2 0,1 0,-4.4 0z" />
+</vector>

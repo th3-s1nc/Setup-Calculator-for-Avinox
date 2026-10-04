@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup Calculator for Avinox</title>
+<meta name="description" content="Suggested assist level, max. watts and max. Nm per mode for Avinox M1, M2 and M2S. Einstellungsvorschläge je Modus, Deutsch und Englisch.">
+<style>
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+img { max-width: 100%; }
+/* Layout: Eingaben links als feste Spalte, rechts erst die Übertragungsliste, dann die Trittfrequenz-Tabellen je Modus.
+   Ein einziges dunkles Schema mit orangem Akzent, passend zur Android-App; folgt nicht der Systemeinstellung. */
+:root {
+  color-scheme: dark;
+  --bg: #0e0e10;
+  --surface: #18181b;
+  --sunken: #242428;
+  --fg: #f4f4f5;
+  --muted: #9a9aa2;
+  --line: #2e2e33;
+  --accent: #ff5a1f;
+  --accent-fg: #1a0a02;
+  --warn: #f0b458;
+  --band-ink: #14181d;
+  --boost: #d9d9de;
+  --f-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font: 400 16px/1.5 var(--f-body); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 56px; display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; line-height: 1.15; }
+h1 { font-size: 2.1rem; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.35rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+.top { display: flex; flex-direction: column; gap: 6px; }
+.top .lede { color: var(--muted); max-width: 62ch; }
+.label { font: 600 0.78rem/1.2 var(--f-display); letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+
+.layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* Eingaben */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 18px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+@media (max-width: 900px) { .panel { position: static; } }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field label, .field .legend { font: 600 0.95rem/1.2 var(--f-display); }
+.hint { font-size: 0.82rem; color: var(--muted); line-height: 1.35; }
+.err { font-size: 0.82rem; color: var(--warn); font-weight: 500; }
+.num { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); overflow: hidden; }
+.num:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+.num input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); font: 600 1.15rem/1 var(--f-display); padding: 10px 12px; font-variant-numeric: tabular-nums; }
+.num input:focus { outline: none; }
+.num span { padding-right: 12px; color: var(--muted); font-size: 0.9rem; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.total { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px; background: var(--sunken); border-radius: 7px; font-size: 0.9rem; }
+.total b { font: 700 1.1rem/1 var(--f-display); }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--bg); }
+.seg label { flex: 1; text-align: center; padding: 9px 6px; cursor: pointer; font: 600 0.95rem/1.1 var(--f-display); color: var(--muted); border-left: 1px solid var(--line); position: relative; }
+.seg label:first-of-type { border-left: 0; }
+.seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.seg label:has(input:checked) { background: var(--sunken); color: var(--accent); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: -4px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+details.helper { font-size: 0.86rem; }
+details.helper summary { cursor: pointer; color: var(--accent); font-weight: 500; }
+details.helper .inner { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
+details.helper select { font: inherit; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); min-width: 0; }
+.example { font-size: 0.84rem; background: var(--sunken); border-radius: 7px; padding: 8px 12px; color: var(--muted); }
+
+/* Ergebnis */
+main { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+section { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.sechead { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: flex-end; justify-content: space-between; }
+.sechead p { color: var(--muted); font-size: 0.92rem; }
+button.act { font: 600 0.92rem/1 var(--f-display); padding: 9px 14px; border-radius: 7px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+button.act:hover { background: var(--accent); color: var(--accent-fg); }
+button.act:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.row { display: grid; grid-template-columns: minmax(112px, 1fr) 92px 78px 66px minmax(150px, 1.5fr); gap: 4px 14px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); }
+.row:first-child { border-top: 0; }
+.row.head { background: var(--sunken); padding-block: 8px; }
+.row.zone { padding-block: 5px; background: var(--bg); }
+.mode { display: flex; align-items: center; gap: 9px; min-width: 0; flex-wrap: wrap; }
+.sw { width: 14px; height: 14px; border-radius: 3px; background: var(--m); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.22); flex: none; }
+.mode b { font: 700 1.05rem/1.1 var(--f-display); letter-spacing: 0.02em; }
+.tag { font: 600 0.68rem/1 var(--f-display); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 3px 5px; }
+.val { font: 700 1.2rem/1.1 var(--f-display); }
+.val small { display: block; font: 400 0.76rem/1.2 var(--f-body); color: var(--muted); }
+.meter { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.track { position: relative; height: 12px; background: var(--sunken); border-radius: 3px; overflow: hidden; }
+.track i { position: absolute; inset: 0 auto 0 0; background: var(--m); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.22); border-radius: 3px; }
+.track i.climb { opacity: 0.45; }
+.meter span { font-size: 0.8rem; color: var(--muted); }
+.meter span b { color: var(--fg); font-weight: 600; }
+@media (max-width: 640px) {
+  .row { grid-template-columns: minmax(0, 1fr) 70px 58px 46px; padding-inline: 12px; gap: 6px 10px; }
+  .row .meter { grid-column: 1 / -1; }
+  .row.head .meterhead { display: none; }
+  .val { font-size: 1.08rem; }
+}
+.legend-line { font-size: 0.82rem; color: var(--muted); }
+
+/* Karten je Modus */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.band { background: var(--m); color: var(--band-ink); padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+.band.boost { background: var(--boost); color: var(--band-ink); }
+.band b { font: 700 1.15rem/1.1 var(--f-display); letter-spacing: 0.03em; }
+.band span { font-size: 0.86rem; font-weight: 500; }
+.card table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.card th { font: 600 0.72rem/1.2 var(--f-display); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 8px 14px 6px; }
+.card td { text-align: right; padding: 4px 14px; border-top: 1px solid var(--line); }
+.card th:first-child, .card td:first-child { text-align: left; }
+.card tr.pref td { font-weight: 600; background: var(--sunken); }
+.notes { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 0.84rem; color: var(--muted); border-top: 1px solid var(--line); margin-top: auto; }
+.notes p.w { color: var(--warn); }
+
+.prose { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px 28px; }
+@media (max-width: 760px) { .prose { grid-template-columns: minmax(0, 1fr); } }
+.prose ol, .prose ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; font-size: 0.93rem; max-width: 65ch; }
+.prose .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.altable { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.altable td { padding: 3px 8px; border-top: 1px solid var(--line); text-align: right; }
+.altable td:nth-child(odd) { color: var(--muted); text-align: left; }
+footer { color: var(--muted); font-size: 0.84rem; max-width: 80ch; display: flex; flex-direction: column; gap: 6px; }
+#copyfallback { width: 100%; min-height: 9em; font: 0.85rem/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 7px; padding: 10px; }
+
+.toprow { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.lang { display: flex; flex: none; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--bg); }
+.lang button { font: 600 0.82rem/1 var(--f-display); letter-spacing: 0.04em; padding: 8px 11px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.lang button + button { border-left: 1px solid var(--line); }
+.lang button[aria-pressed="true"] { background: var(--sunken); color: var(--accent); }
+.lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+
+.results { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 28px 22px; display: flex; flex-direction: column; gap: 8px; }
+.empty p { color: var(--muted); max-width: 56ch; }
+button.reset { align-self: flex-start; font: 600 0.9rem/1 var(--f-display); padding: 9px 12px; border-radius: 7px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+button.reset:hover { color: var(--fg); border-color: var(--muted); }
+button.reset.armed { color: var(--warn); border-color: var(--warn); }
+button.reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="toprow">
+      <span class="label">M1 · M2 · M2S</span>
+      <div class="lang" role="group" aria-label="Sprache / Language">
+        <button type="button" id="lang-de" aria-pressed="false">DE</button>
+        <button type="button" id="lang-en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <h1 id="h1"></h1>
+    <p class="lede" data-i18n="lede"></p>
+  </header>
+
+  <div class="layout">
+    <form class="panel" id="inputs" autocomplete="off">
+      <fieldset class="field">
+        <span class="legend" data-i18n="motor"></span>
+        <div class="seg">
+          <label><input type="radio" name="motor" id="motor-M1" value="M1">M1</label>
+          <label><input type="radio" name="motor" id="motor-M2" value="M2">M2</label>
+          <label><input type="radio" name="motor" id="motor-M2S" value="M2S">M2S</label>
+        </div>
+        <span class="hint" id="motorHint"></span>
+      </fieldset>
+
+      <div class="field">
+        <div class="pair">
+          <div class="field">
+            <label for="bike" data-i18n="bike"></label>
+            <div class="num"><input id="bike" type="number" inputmode="decimal" min="10" max="45" step="0.5"><span>kg</span></div>
+          </div>
+          <div class="field">
+            <label for="rider" data-i18n="rider"></label>
+            <div class="num"><input id="rider" type="number" inputmode="decimal" min="40" max="180" step="0.5"><span>kg</span></div>
+          </div>
+        </div>
+        <span class="hint" data-i18n="weightHint"></span>
+        <span class="err" id="err-weight" hidden></span>
+        <div class="total"><span data-i18n="total"></span><b id="total"></b></div>
+      </div>
+
+      <div class="field">
+        <label for="power" data-i18n="power"></label>
+        <div class="num"><input id="power" type="number" inputmode="numeric" min="50" max="500" step="5"><span data-i18n="unitW"></span></div>
+        <span class="hint" data-i18n="powerHint"></span>
+        <span class="err" id="err-power" hidden></span>
+      </div>
+
+      <div class="field">
+        <label for="cadence" data-i18n="cadence"></label>
+        <div class="num"><input id="cadence" type="number" inputmode="numeric" min="40" max="120" step="1"><span data-i18n="unitRpm"></span></div>
+        <span class="err" id="err-cadence" hidden></span>
+        <details class="helper" id="cadHelper">
+          <summary data-i18n="gearSummary"></summary>
+          <div class="inner">
+            <span class="hint" data-i18n="gearQuestion"></span>
+            <div class="pair">
+              <select id="ring"></select>
+              <select id="gear"></select>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <fieldset class="field">
+        <span class="legend" data-i18n="scope"></span>
+        <div class="seg">
+          <label><input type="radio" name="scope" id="scope-four" value="four" checked><span data-i18n="scopeFour"></span></label>
+          <label><input type="radio" name="scope" id="scope-all" value="all"><span data-i18n="scopeAll"></span></label>
+        </div>
+        <span class="hint" id="scopeHint"></span>
+      </fieldset>
+
+      <fieldset class="field" id="profileField">
+        <span class="legend" data-i18n="focus"></span>
+        <div class="seg">
+          <label><input type="radio" name="profile" id="profile-allround" value="allround" checked><span data-i18n="pAllround"></span></label>
+          <label><input type="radio" name="profile" id="profile-long" value="long"><span data-i18n="pLong"></span></label>
+          <label><input type="radio" name="profile" id="profile-power" value="power"><span data-i18n="pPower"></span></label>
+        </div>
+        <span class="hint" id="profileHint"></span>
+      </fieldset>
+
+      <button type="button" class="reset" id="reset"></button>
+    </form>
+
+    <main>
+      <div class="empty" id="empty" hidden>
+        <h2 data-i18n="emptyTitle"></h2>
+        <p data-i18n="emptyText"></p>
+      </div>
+
+      <div class="results" id="results">
+      <section>
+        <div class="sechead">
+          <div>
+            <h2 data-i18n="h2settings"></h2>
+            <p id="summary"></p>
+          </div>
+          <button type="button" class="act" id="copy"></button>
+        </div>
+        <div class="list" id="list"></div>
+        <p class="legend-line" id="legendLine"></p>
+        <textarea id="copyfallback" hidden readonly></textarea>
+      </section>
+
+      <section>
+        <div class="sechead">
+          <div>
+            <h2 data-i18n="h2power"></h2>
+            <p data-i18n="h2powerSub"></p>
+          </div>
+        </div>
+        <div class="cards" id="cards"></div>
+      </section>
+
+      <section>
+        <h2 data-i18n="h2how"></h2>
+        <div class="prose">
+          <div class="col">
+            <ol id="rules"></ol>
+            <ul id="tips"></ul>
+          </div>
+          <div class="col">
+            <h3 data-i18n="alTitle"></h3>
+            <table class="altable" id="altable"></table>
+            <span class="hint" data-i18n="alHint"></span>
+          </div>
+        </div>
+      </section>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <p data-i18n="foot1"></p>
+    <p id="foot2"></p>
+  </footer>
+</div>
+
+<script>
+/* Rechenkern: Setup-Rechner für Avinox.
+   Rechenweg nach dem Setup-Guide von Bernd Hemmersbach (Vorabfassung 11.05.2026)
+   und den Blättern "Generelles Setup" (M1, M2, M2S). */
+var AvinoxCalc = (function () {
+  // Assist Level -> Unterstützung in % (Testfahrten des Autors mit dem M1)
+  var AL = [0, 30, 60, 80, 100, 125, 150, 175, 225, 300, 375, 450, 525, 675, 825, 950];
+  var K = 9.55; // Watt = Nm x U/min / 9,55
+
+  var MOTORS = {
+    M1:  { label: 'M1',  nm: 105, watt: 1000, boostNm: 120, boostW: 1000 },
+    M2:  { label: 'M2',  nm: 110, watt: 1000, boostNm: 125, boostW: 1100 },
+    M2S: { label: 'M2S', nm: 130, watt: 1300, boostNm: 150, boostW: 1500 }
+  };
+
+  // Zielwerte in Watt Motorleistung je kg Gesamtgewicht (Guide 2.5, 3.5, 3.6)
+  var PROFILES = {
+    allround: { label: 'Alleskönner', modes: {
+      ECO: { t: 1.4, band: [1, 1.5] }, AUTO: { t: 2.75, band: [2, 3] },
+      TRAIL: { t: 5.5, band: [4.5, 6] }, TURBO: { t: 7.75, band: [6, 8] } } },
+    long: { label: 'Langstrecke', modes: {
+      ECO: { t: 0.9, band: [0.75, 1] }, AUTO: { t: 1.8, band: [1.5, 2] },
+      TRAIL: { t: 2.75, band: [2.5, 3.5] }, TURBO: { t: 4.1, band: [3.5, 5] } } },
+    power: { label: 'Power', modes: {
+      ECO: { t: 1.8, band: [1.5, 2] }, AUTO: { t: 4.1, band: [3, 4.5] },
+      TRAIL: { t: 6.4, band: [6, 7.5] }, TURBO: { t: 9.1, band: [7.5, 10] } } }
+  };
+
+  // Modus-Leitern der Blätter "Generelles Setup"
+  var LADDERS = {
+    M1: [
+      { name: 'LOW',    zone: 'low',  t: 0.9, al: 'below', nmEff: true },
+      { name: 'ECO',    zone: 'low',  t: 1.4, al: 'below', std: 'ECO' },
+      { name: 'ROAD',   zone: 'low',  t: 2.0, al: 'below' },
+      { name: 'AUTO',   zone: 'mid',  t: 3.0, range: true, std: 'AUTO' },
+      { name: 'TRAIL',  zone: 'mid',  t: 4.2, range: true, std: 'TRAIL' },
+      { name: 'TURBO',  zone: 'mid',  t: 5.6, std: 'TURBO' },
+      { name: 'BEAST',  zone: 'high', t: 7.5 },
+      { name: 'ALL IN', zone: 'high', top: true }
+    ],
+    M2: [
+      { name: 'LOW',   zone: 'low',  t: 0.9, al: 'below', nmEff: true },
+      { name: 'FLAT',  zone: 'low',  t: 1.4, al: 'below' },
+      { name: 'ECO',   zone: 'low',  t: 1.8, std: 'ECO' },
+      { name: 'ROAD',  zone: 'mid',  t: 2.2 },
+      { name: 'AUTO',  zone: 'mid',  t: 3.0, range: true, std: 'AUTO' },
+      { name: 'TRAIL', zone: 'mid',  t: 4.2, range: true, std: 'TRAIL' },
+      { name: 'TURBO', zone: 'high', t: 5.6, std: 'TURBO' },
+      { name: 'POWER', zone: 'high', t: 7.5 },
+      { name: 'BEAST', zone: 'high', top: true }
+    ],
+    M2S: [
+      { name: 'LOW',    zone: 'low',  t: 0.9, al: 'below', nmEff: true },
+      { name: 'ECO',    zone: 'low',  t: 1.4, al: 'below', std: 'ECO' },
+      { name: 'ROAD',   zone: 'low',  t: 2.1, al: 'below' },
+      { name: 'AUTO',   zone: 'mid',  t: 3.0, range: true, std: 'AUTO' },
+      { name: 'TRAIL',  zone: 'mid',  t: 4.2, range: true, std: 'TRAIL' },
+      { name: 'TURBO',  zone: 'mid',  t: 5.6, std: 'TURBO' },
+      { name: 'BEAST',  zone: 'high', t: 7.5 },
+      { name: 'ALL IN', zone: 'high', t: 9.0 },
+      { name: 'MTWOS',  zone: 'high', top: true }
+    ]
+  };
+
+  // Einstellbereiche der vier Werksmodi (Guide 1.2, M1). Obergrenzen folgen dem Motor.
+  function limits(std, M) {
+    switch (std) {
+      case 'ECO':   return { al: [1, 7],  nm: [10, 70],   w: [100, 400] };
+      case 'AUTO':  return { al: [3, 11], nm: [10, M.nm], w: [200, M.watt] };
+      case 'TRAIL': return { al: [6, 13], nm: [20, M.nm], w: [300, M.watt] };
+      case 'TURBO': return { al: [8, 15], nm: [60, M.nm], w: [400, M.watt] };
+      default:      return { al: [1, 15], nm: [10, M.nm], w: [100, M.watt] };
+    }
+  }
+
+  function clamp(x, a, b) { return Math.min(b, Math.max(a, x)); }
+  function ceil5(x) { return Math.ceil((x - 1e-9) / 5) * 5; }
+  function round50(x) { return Math.round(x / 50 + 1e-9) * 50; }
+  function round100(x) { return Math.round(x / 100 + 1e-9) * 100; }
+
+  // Nächsthöhere Stufe, die die nötige Unterstützung liefert (2 % Toleranz)
+  function alMatch(watt, own) {
+    var req = watt / own * 100;
+    for (var L = 1; L <= 15; L++) if (AL[L] >= req * 0.98) return L;
+    return 15;
+  }
+  // Höchste Stufe, die unter der Wattgrenze bleibt (Reichweiten-Stufen)
+  function alBelow(watt, own) {
+    var req = watt / own * 100, r = 1;
+    for (var L = 1; L <= 15; L++) if (AL[L] < req - 1e-9) r = L;
+    return r;
+  }
+
+  function build(defs, inp, M, ladder) {
+    var kg = inp.bike + inp.rider, own = inp.power, cad = inp.cadence;
+    var n = defs.length, i;
+    var modes = defs.map(function (d) {
+      return { name: d.name, zone: d.zone || null, custom: !d.std, range: !!d.range,
+               band: d.band || null, lim: limits(d.std, M), flags: {} };
+    });
+
+    // 1. max. Watt aus Zielwert x Gesamtgewicht
+    for (i = 0; i < n; i++) {
+      var d = defs[i], m = modes[i], w;
+      if (d.top) w = M.watt;
+      else {
+        var raw = d.t * kg;
+        w = (ladder && raw >= 500) ? round100(raw) : round50(raw);
+        var c = clamp(w, m.lim.w[0], m.lim.w[1]);
+        if (c > w) m.flags.wattMin = true;
+        if (c < w) m.flags.wattMax = true;
+        w = c;
+      }
+      m.watt = w;
+    }
+    for (i = 1; i < n; i++) if (!defs[i].top && modes[i].watt < modes[i - 1].watt + 50)
+      modes[i].watt = Math.min(modes[i].lim.w[1], modes[i - 1].watt + 50);
+    for (i = n - 2; i >= 0; i--) {
+      var step = (ladder && modes[i + 1].watt > 500) ? 100 : 50;
+      var cap = Math.max(modes[i].lim.w[0], modes[i + 1].watt - step);
+      if (modes[i].watt > cap) { modes[i].watt = cap; modes[i].flags.wattMax = true; }
+    }
+
+    // 2. Assist Level aus Wattgrenze / Eigenleistung
+    var prevHi = 0, prevRange = false;
+    for (i = 0; i < n; i++) {
+      var d2 = defs[i], m2 = modes[i], L = m2.lim.al, lo, hi;
+      if (d2.range) {
+        hi = clamp(alMatch(m2.watt, own), L[0], L[1]);
+        lo = prevRange ? Math.max(L[0], prevHi) : Math.max(L[0], Math.min(prevHi + 1, hi - 2));
+        if (hi <= lo) hi = Math.min(L[1], lo + 1);
+        if (hi <= lo) lo = hi - 1;
+      } else {
+        var a = d2.al === 'below' ? alBelow(m2.watt, own) : alMatch(m2.watt, own);
+        if (d2.top) a += 1; // Reserve, damit die volle Leistung auch mit müden Beinen anliegt
+        a = Math.max(a, d2.zone === 'low' ? prevHi + 1 : prevHi);
+        lo = hi = clamp(a, L[0], L[1]);
+      }
+      m2.alLo = lo; m2.alHi = hi;
+      prevHi = hi; prevRange = !!d2.range;
+    }
+
+    // 3. max. Nm aus Wattgrenze und Lieblings-Trittfrequenz
+    for (i = 0; i < n; i++) {
+      var d3 = defs[i], m3 = modes[i];
+      var base = d3.nmEff ? Math.min(m3.watt, AL[m3.alHi] / 100 * own) : m3.watt;
+      var nm = ceil5(base * K / cad);
+      var cn = clamp(nm, m3.lim.nm[0], m3.lim.nm[1]);
+      if (cn < nm) m3.flags.nmMax = true;
+      if (cn > nm) m3.flags.nmMin = true;
+      m3.nm = cn;
+    }
+    if (ladder) for (i = n - 2; i >= 0; i--) {
+      if (modes[i].zone !== 'high' || modes[i + 1].zone !== 'high') continue;
+      var capNm = Math.max(modes[i].lim.nm[0], modes[i + 1].nm - 15);
+      if (modes[i].nm > capNm) { modes[i].nm = capNm; modes[i].flags.nmSpread = true; }
+    }
+
+    // 4. Leistungstabellen
+    modes.forEach(function (m4) {
+      function eff(al, rpm) { return Math.min(AL[al] / 100 * own, m4.nm * rpm / K, m4.watt); }
+      m4.rows = [-30, -20, -10, 0, 10, 20].map(function (dx) {
+        var rpm = cad + dx, f = eff(m4.alLo, rpm), cl = eff(m4.alHi, rpm);
+        return { rpm: rpm, flat: f, climb: cl, wkg: cl / kg, pref: dx === 0 };
+      });
+      m4.flat = eff(m4.alLo, cad);
+      m4.climb = eff(m4.alHi, cad);
+      m4.wkg = m4.climb / kg;
+      m4.pctLo = AL[m4.alLo]; m4.pctHi = AL[m4.alHi];
+      m4.alWatt = AL[m4.alHi] / 100 * own;        // was der Assist Level hergibt
+      m4.nmWatt = m4.nm * cad / K;                // was das Drehmoment bei Lieblingskadenz hergibt
+      m4.rpmForMax = Math.ceil(m4.watt * K / m4.nm - 1e-9);
+      delete m4.lim;
+    });
+    return modes;
+  }
+
+  function compute(inp) {
+    var M = MOTORS[inp.motor], kg = inp.bike + inp.rider, defs, ladder = inp.scope === 'all';
+    if (ladder) defs = LADDERS[inp.motor];
+    else {
+      var P = PROFILES[inp.profile] || PROFILES.allround;
+      defs = ['ECO', 'AUTO', 'TRAIL', 'TURBO'].map(function (nme) {
+        return { name: nme, std: nme, t: P.modes[nme].t, band: P.modes[nme].band,
+                 range: nme === 'AUTO' || nme === 'TRAIL' };
+      });
+    }
+    var modes = build(defs, inp, M, ladder);
+    var cad = inp.cadence, own = inp.power;
+    function beff(rpm) { return Math.min(M.boostNm * rpm / K, M.boostW, AL[15] / 100 * own); }
+    var boost = {
+      name: 'BOOST', nm: M.boostNm, watt: M.boostW, al: 15, pct: AL[15],
+      climb: beff(cad), flat: beff(cad), wkg: beff(cad) / kg,
+      rpmForMax: Math.ceil(M.boostW * K / M.boostNm - 1e-9),
+      rows: [-30, -20, -10, 0, 10, 20].map(function (dx) {
+        var p = beff(cad + dx);
+        return { rpm: cad + dx, flat: p, climb: p, wkg: p / kg, pref: dx === 0 };
+      })
+    };
+    return { motor: M, kg: kg, modes: modes, boost: boost, ladder: ladder };
+  }
+
+  return { AL: AL, K: K, MOTORS: MOTORS, PROFILES: PROFILES, LADDERS: LADDERS, compute: compute };
+})();
+
+</script>
+<script>
+(function () {
+  var C = AvinoxCalc;
+  var PAGES = true; // true in der Fassung für GitHub Pages (docs/index.html)
+  // ECO, AUTO, TRAIL, TURBO wie in der Avinox Ride App, Zusatzmodi nach den Farbcodes der Setup-Blätter
+  var COLORS = { LOW: '#f4e04d', FLAT: '#a8e05f', ECO: '#2fcb7a', ROAD: '#4cc9f0', AUTO: '#3d9bf5', TRAIL: '#f2a93b',
+                 TURBO: '#ff5a2b', POWER: '#f06ac0', BEAST: '#a97be8', 'ALL IN': '#f06ac0', MTWOS: '#a8e05f' };
+  var CAD = { 34: { 12: 52, 11: 63, 10: 73, 9: 84, 8: 94 }, 36: { 12: 49, 11: 59, 10: 69, 9: 79, 8: 89 } };
+  var TEETH = { 12: 10, 11: 12, 10: 14, 9: 16, 8: 18 };
+  var KEY = 'avinox-setup-v1', LANGKEY = 'setup-lang';
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---------------------------------------------------------------- Texte
+  var L = {
+    de: {
+      locale: 'de-DE',
+      title: 'Setup-Rechner für Avinox',
+      lede: 'Aus Gewicht, Eigenleistung und Trittfrequenz entstehen Vorschläge für Assist Level, max. Watt und max. Nm in jedem Modus.',
+      reset: 'Zurücksetzen', resetConfirm: 'Wirklich alle Eingaben löschen?',
+      emptyTitle: 'Noch kein Setup',
+      emptyText: 'Wähle deinen Motor und trag Gewicht, Eigenleistung und Trittfrequenz ein. Dann erscheinen hier die Einstellungen für jeden Modus.',
+      motorChoose: 'Wähle deinen Motor.',
+      motor: 'Motor', bike: 'Bike', rider: 'Fahrer',
+      weightHint: 'Bike mit allem, was montiert ist. Fahrer abfahrtbereit mit Kleidung, Helm und Rucksack.',
+      total: 'Gesamtgewicht',
+      power: 'Eigenleistung', unitW: 'Watt',
+      powerHint: 'Dein Durchschnitt über 5 bis 10 Minuten am Anstieg, Motor aus. Steht in der Avinox-App unter Fahrdaten, Radfahrer, Leistung.',
+      cadence: 'Lieblings-Trittfrequenz', unitRpm: 'U/min',
+      gearSummary: 'Über den Gang bei 25 km/h bestimmen',
+      gearQuestion: 'In welchem Gang fährst du Tempo 25 am liebsten?',
+      ring: function (n) { return n + 'er Kettenblatt'; }, ringAria: 'Kettenblatt', gearAria: 'Gang',
+      gearPick: 'Gang wählen',
+      gearOpt: function (g, teeth) { return g + '. Gang (' + teeth + ' Zähne)'; },
+      scope: 'Umfang', scopeFour: '4 Modi', scopeAll: 'Alle Modi',
+      focus: 'Ausrichtung', pAllround: 'Alleskönner', pLong: 'Langstrecke', pPower: 'Power',
+      h2settings: 'Einstellungen für die Avinox Ride App',
+      copyBtn: 'Als Text kopieren', copied: 'Kopiert', copyFallback: 'Text markiert, jetzt kopieren', copyAria: 'Setup als Text',
+      h2power: 'Motorleistung nach Trittfrequenz',
+      h2powerSub: 'Watt vom Motor bei deiner Eigenleistung. Die hervorgehobene Zeile ist deine Lieblings-Trittfrequenz.',
+      h2how: 'So wird gerechnet', alTitle: 'Assist Level und Unterstützung',
+      alHint: 'Aus Testfahrten des Guide-Autors mit dem M1 ermittelt, von Avinox nicht bestätigt. Nahe 25 km/h und bei wenig Last fällt die Unterstützung geringer aus.',
+      foot1: 'Rechenweg und Assist-Level-Werte stammen aus dem Setup-Guide von Bernd Hemmersbach (Vorabfassung vom 11.05.2026) und seinen Blättern „Generelles Setup“ für M1, M2 und M2S. Veröffentlicht mit Zustimmung des Autors.',
+      foot2: 'Kein Werkzeug von Avinox oder DJI. Die Werte sind Startpunkte. Stimm sie nach Fahrgefühl nach.',
+      foot2Pages: 'Die Werte sind Startpunkte. Stimm sie nach Fahrgefühl nach. Kein Werkzeug von Avinox oder DJI. Avinox und DJI sind Marken ihrer jeweiligen Inhaber. Freie Software unter MIT-Lizenz, ohne Gewähr. Die Seite lädt nichts nach und speichert deine Eingaben nur in deinem Browser.',
+      errWeight: 'Bike zwischen 10 und 45 kg, Fahrer zwischen 40 und 180 kg eintragen.',
+      errPower: 'Einen Wert zwischen 50 und 500 Watt eintragen.',
+      errCadence: 'Einen Wert zwischen 40 und 120 U/min eintragen.',
+      summary: function (m, kg, cad, pow) { return 'Avinox ' + m + ' · ' + kg + ' kg gesamt · ' + cad + ' U/min · ' + pow + ' W Eigenleistung'; },
+      thMode: 'Modus', thAL: 'Assist Level', thW: 'max. Watt', thNm: 'max. Nm',
+      thMotorAt: function (cad) { return 'Motor bei ' + cad + ' U/min'; },
+      zones: { low: 'Low · Reichweite', mid: 'Mid · Tour und Trail', high: 'High · volle Leistung' },
+      tagNew: 'neu anlegen', tagFixed: 'fest',
+      pct: function (a, b) { return b == null ? a + ' %' : a + ' – ' + b + ' %'; },
+      legend: function (cad, pow, scale) { return 'Balken: Motorleistung bei ' + cad + ' U/min und ' + pow + ' W Eigenleistung, Skala bis ' + scale + ' W. Bei AUTO und TRAIL zeigt der kräftige Teil die Leistung im Flachen, der helle die am Anstieg.'; },
+      alLabel: 'Assist Level', thRpm: 'U/min', thFlat: 'Watt flach', thClimb: 'Watt Anstieg', thMotor: 'Watt Motor',
+      nNm: function (cad, now, max, rpm) { return 'Bei ' + cad + ' U/min liegen ' + now + ' W an. Die vollen ' + max + ' W gibt es ab ' + rpm + ' U/min.'; },
+      nAl: function (pow, al, max) { return 'Mit ' + pow + ' W Eigenleistung liefert der Motor bis zu ' + al + ' W. Die ' + max + ' W sind die Obergrenze, wenn du stärker trittst.'; },
+      nBelow: function (a, b) { return 'Unter dem Zielbereich von ' + a + ' bis ' + b + ' W/kg. Mehr geht mit diesem Gewicht und dieser Trittfrequenz nicht.'; },
+      nBand: function (a, b) { return 'Zielbereich ' + a + ' bis ' + b + ' W/kg.'; },
+      nMin: 'Auf den kleinsten Wert gesetzt, den der Modus zulässt.',
+      nSpread: 'Drehmoment 15 Nm unter der nächsten Stufe, damit sich die starken Modi unterscheiden.',
+      nFull: 'Die eingestellte Wattgrenze liegt bei deiner Trittfrequenz voll an.',
+      nBoost: function (w, rpm) { return 'Nicht einstellbar, für höchstens 60 Sekunden. Volle ' + w + ' W ab ' + rpm + ' U/min.'; },
+      motorHint: function (nm, w, bnm, bw) { return 'In den Modi bis ' + nm + ' Nm und ' + w + ' W, im Boost ' + bnm + ' Nm und ' + bw + ' W.'; },
+      scopeAllHint: function (n, names) { return n + ' Stufen wie im Blatt „Generelles Setup“: ' + names + '.'; },
+      scopeFourHint: 'Die vier Werksmodi ECO, AUTO, TRAIL und TURBO.',
+      profileHint: { allround: 'Lange Strecken und Spaß im Gelände mit einem Setup.', long: 'Für mehr als 150 km und 2.000 hm mit einer Akkuladung.', power: 'Für Events oder maximalen Spaß.' },
+      rules: function (kg, cad, pow) { return [
+        '<b>max. Watt</b> = Zielwert in Watt je kg Gesamtgewicht × ' + kg + ' kg, gerundet auf 50 W und begrenzt auf das, was Motor und Modus zulassen.',
+        '<b>max. Nm</b> = max. Watt ÷ ' + cad + ' U/min × 9,55, aufgerundet auf die nächste 5er-Stufe. So liegt die Wattgrenze bei deiner Trittfrequenz an.',
+        '<b>Assist Level</b> = max. Watt ÷ ' + pow + ' W Eigenleistung. Gewählt wird die nächsthöhere Stufe, die diese Unterstützung liefert.',
+        'AUTO und TRAIL bekommen einen Bereich: der obere Wert aus der Rechnung, der untere schließt an den Modus darunter an.' ]; },
+      rule5: function (names) { return 'Bei allen Modi bleiben die Reichweiten-Stufen (' + names + ') mit dem Assist Level bewusst unter der Wattgrenze. Die stärkste Stufe nutzt das Maximum des Motors und bekommt einen Assist Level Reserve.'; },
+      tipsLadder: ['Die mit „neu anlegen“ markierten Stufen in der Avinox Ride App als zusätzliche Modi mit Name und Farbe anlegen und die Reihenfolge wie oben einrichten.',
+        'Im Flachen in eine der drei unteren Stufen schalten. Das bringt die größte Reichweite.',
+        'Nachlauf in den starken Modi von einer mittleren Einstellung aus herantasten. Mit langem Nachlauf schiebt das Bike in engen Kurven bergauf weiter.'],
+      tipsFour: ['Reihenfolge der Modi in der App auf ECO, AUTO, TRAIL, TURBO stellen. Dann schaltest du von schwach nach stark.',
+        'Mit Echtzeit-Tuning änderst du den Assist Level unterwegs vom Lenker aus.'],
+      level: 'Level',
+      shareHead: function (m, kg, cad, pow) { return 'Avinox ' + m + ' Setup (' + kg + ' kg gesamt, ' + cad + ' U/min, ' + pow + ' W Eigenleistung)'; },
+      shareLine: function (n, al, w, nm) { return n + ': Assist Level ' + al + ' · max. ' + w + ' W · max. ' + nm + ' Nm'; }
+    },
+    en: {
+      locale: 'en-US',
+      title: 'Setup Calculator for Avinox',
+      lede: 'From weight, rider power and cadence it suggests assist level, max. watts and max. Nm for every mode.',
+      reset: 'Reset', resetConfirm: 'Really clear all inputs?',
+      emptyTitle: 'No setup yet',
+      emptyText: 'Choose your motor and enter weight, rider power and cadence. The settings for every mode will then appear here.',
+      motorChoose: 'Choose your motor.',
+      motor: 'Motor', bike: 'Bike', rider: 'Rider',
+      weightHint: 'Bike with everything mounted on it. Rider ready to ride with clothing, helmet and backpack.',
+      total: 'Total weight',
+      power: 'Rider power', unitW: 'W',
+      powerHint: 'Your average over 5 to 10 minutes on a climb, motor off. The Avinox app lists it in the ride data as the rider\'s power.',
+      cadence: 'Preferred cadence', unitRpm: 'rpm',
+      gearSummary: 'Work it out from your gear at 25 km/h',
+      gearQuestion: 'Which gear do you prefer at 25 km/h?',
+      ring: function (n) { return n + 'T chainring'; }, ringAria: 'Chainring', gearAria: 'Gear',
+      gearPick: 'Choose gear',
+      gearOpt: function (g, teeth) { return 'Gear ' + g + ' (' + teeth + ' teeth)'; },
+      scope: 'Scope', scopeFour: '4 modes', scopeAll: 'All modes',
+      focus: 'Focus', pAllround: 'All-rounder', pLong: 'Long range', pPower: 'Power',
+      h2settings: 'Settings for the Avinox Ride app',
+      copyBtn: 'Copy as text', copied: 'Copied', copyFallback: 'Text selected, copy it now', copyAria: 'Setup as text',
+      h2power: 'Motor power by cadence',
+      h2powerSub: 'Watts from the motor at your rider power. The highlighted row is your preferred cadence.',
+      h2how: 'How it is calculated', alTitle: 'Assist level and assistance',
+      alHint: 'Measured by the guide\'s author in test rides with the M1, not confirmed by Avinox. Close to 25 km/h and under light load the assistance is lower.',
+      foot1: 'The calculation and the assist level figures come from the setup guide by Bernd Hemmersbach (preliminary version of 11 May 2026) and his “Generelles Setup” sheets for M1, M2 and M2S. Published with the author\'s permission.',
+      foot2: 'Not a tool by Avinox or DJI. The values are starting points. Fine-tune them by feel.',
+      foot2Pages: 'The values are starting points. Fine-tune them by feel. Not a tool by Avinox or DJI. Avinox and DJI are trademarks of their respective owners. Free software under the MIT license, without warranty. The page loads nothing from elsewhere and stores your inputs only in your browser.',
+      errWeight: 'Enter 10 to 45 kg for the bike and 40 to 180 kg for the rider.',
+      errPower: 'Enter a value between 50 and 500 W.',
+      errCadence: 'Enter a value between 40 and 120 rpm.',
+      summary: function (m, kg, cad, pow) { return 'Avinox ' + m + ' · ' + kg + ' kg total · ' + cad + ' rpm · ' + pow + ' W rider power'; },
+      thMode: 'Mode', thAL: 'Assist level', thW: 'max. watts', thNm: 'max. Nm',
+      thMotorAt: function (cad) { return 'Motor at ' + cad + ' rpm'; },
+      zones: { low: 'Low · range', mid: 'Mid · touring and trail', high: 'High · full power' },
+      tagNew: 'create new', tagFixed: 'fixed',
+      pct: function (a, b) { return b == null ? a + '%' : a + '–' + b + '%'; },
+      legend: function (cad, pow, scale) { return 'Bars: motor power at ' + cad + ' rpm and ' + pow + ' W rider power, scale up to ' + scale + ' W. For AUTO and TRAIL the solid part is the power on the flat, the light part the power on a climb.'; },
+      alLabel: 'Assist level', thRpm: 'rpm', thFlat: 'Watts flat', thClimb: 'Watts climbing', thMotor: 'Motor watts',
+      nNm: function (cad, now, max, rpm) { return 'At ' + cad + ' rpm you get ' + now + ' W. The full ' + max + ' W are available from ' + rpm + ' rpm.'; },
+      nAl: function (pow, al, max) { return 'With ' + pow + ' W of rider power the motor adds up to ' + al + ' W. The ' + max + ' W are the ceiling when you pedal harder.'; },
+      nBelow: function (a, b) { return 'Below the target range of ' + a + ' to ' + b + ' W/kg. That is the most this weight and cadence allow.'; },
+      nBand: function (a, b) { return 'Target range ' + a + ' to ' + b + ' W/kg.'; },
+      nMin: 'Set to the lowest value the mode allows.',
+      nSpread: 'Torque set 15 Nm below the next step so the strong modes stay distinct.',
+      nFull: 'The watt limit is fully available at your cadence.',
+      nBoost: function (w, rpm) { return 'Not adjustable, for 60 seconds at most. Full ' + w + ' W from ' + rpm + ' rpm.'; },
+      motorHint: function (nm, w, bnm, bw) { return 'Up to ' + nm + ' Nm and ' + w + ' W in the modes, ' + bnm + ' Nm and ' + bw + ' W in Boost.'; },
+      scopeAllHint: function (n, names) { return n + ' steps as in the “Generelles Setup” sheet: ' + names + '.'; },
+      scopeFourHint: 'The four stock modes ECO, AUTO, TRAIL and TURBO.',
+      profileHint: { allround: 'Long rides and fun off-road with one setup.', long: 'For more than 150 km and 2,000 m of climbing on one charge.', power: 'For events or maximum fun.' },
+      rules: function (kg, cad, pow) { return [
+        '<b>Max. watts</b> = target in watts per kg of total weight × ' + kg + ' kg, rounded to 50 W and capped at what the motor and the mode allow.',
+        '<b>Max. Nm</b> = max. watts ÷ ' + cad + ' rpm × 9.55, rounded up to the next step of 5. That makes the watt limit available at your cadence.',
+        '<b>Assist level</b> = max. watts ÷ ' + pow + ' W rider power. The next higher level that delivers this assistance is chosen.',
+        'AUTO and TRAIL get a range: the upper value from the calculation, the lower one follows on from the mode below.' ]; },
+      rule5: function (names) { return 'With all modes, the range steps (' + names + ') deliberately keep the assist level below the watt limit. The strongest step uses the motor\'s maximum and gets one assist level in reserve.'; },
+      tipsLadder: ['Create the steps marked “create new” as additional modes in the Avinox Ride app, with name and colour, and arrange them in the order shown above.',
+        'On the flat, switch to one of the three lowest steps. That gives the most range.',
+        'In the strong modes, approach the motor overrun setting from a medium value. With a long overrun the bike keeps pushing in tight uphill corners.'],
+      tipsFour: ['Set the mode order in the app to ECO, AUTO, TRAIL, TURBO. Then you shift from weak to strong.',
+        'With real-time tuning you change the assist level from the handlebar while riding.'],
+      level: 'Level',
+      shareHead: function (m, kg, cad, pow) { return 'Avinox ' + m + ' setup (' + kg + ' kg total, ' + cad + ' rpm, ' + pow + ' W rider power)'; },
+      shareLine: function (n, al, w, nm) { return n + ': assist level ' + al + ' · max. ' + w + ' W · max. ' + nm + ' Nm'; }
+    }
+  };
+
+  // Sprache: gespeicherte Wahl, sonst Browsersprache
+  var lang = 'en';
+  try { lang = localStorage.getItem(LANGKEY) || ''; } catch (e) { lang = ''; }
+  if (lang !== 'de' && lang !== 'en') lang = /^de\b/i.test(navigator.language || '') ? 'de' : 'en';
+  var T = L[lang], nf, nf2;
+  function setLang(l) {
+    lang = l; T = L[l];
+    nf = new Intl.NumberFormat(T.locale, { maximumFractionDigits: 0 });
+    nf2 = new Intl.NumberFormat(T.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.documentElement.lang = l;
+    $('lang-de').setAttribute('aria-pressed', String(l === 'de'));
+    $('lang-en').setAttribute('aria-pressed', String(l === 'en'));
+  }
+  var w = function (x) { return nf.format(Math.round(x)); };
+  var kgf = function (x) { return nf2.format(x); };
+  var one = function (x) { return lang === 'de' ? String(x).replace('.', ',') : String(x); };
+  var last = null, lastInp = null;
+
+  // Feste Texte der Seite in der gewählten Sprache setzen
+  function applyStatic() {
+    $('h1').textContent = T.title;
+    document.title = T.title;
+    $('foot2').textContent = PAGES ? T.foot2Pages : T.foot2;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) { el.textContent = T[el.getAttribute('data-i18n')]; });
+    $('copy').textContent = T.copyBtn;
+    $('reset').textContent = T.reset;
+    $('copyfallback').setAttribute('aria-label', T.copyAria);
+    var ring = $('ring'), gear = $('gear'), rv = ring.value || '34', gv = gear.value || '';
+    ring.setAttribute('aria-label', T.ringAria); gear.setAttribute('aria-label', T.gearAria);
+    ring.innerHTML = [34, 36].map(function (n) { return '<option value="' + n + '">' + T.ring(n) + '</option>'; }).join('');
+    gear.innerHTML = '<option value="">' + T.gearPick + '</option>' + [12, 11, 10, 9, 8].map(function (g) { return '<option value="' + g + '">' + T.gearOpt(g, TEETH[g]) + '</option>'; }).join('');
+    ring.value = rv; gear.value = gv;
+    var t = '';
+    for (var i = 1; i <= 8; i++) {
+      t += '<tr><td>' + T.level + ' ' + i + '</td><td>' + T.pct(C.AL[i]) + '</td><td>' + (i + 8 <= 15 ? T.level + ' ' + (i + 8) : '') + '</td><td>' + (i + 8 <= 15 ? T.pct(C.AL[i + 8]) : '') + '</td></tr>';
+    }
+    $('altable').innerHTML = t;
+  }
+
+  function radio(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : null; }
+  function setRadio(name, v) { var el = $(name + '-' + v); if (el) el.checked = true; }
+
+  var FIELDS = ['bike', 'rider', 'power', 'cadence'];
+  function load() {
+    try {
+      var s = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!s) return;
+      FIELDS.forEach(function (k) { if (s[k] != null && s[k] === s[k]) $(k).value = s[k]; });
+      ['motor', 'scope', 'profile'].forEach(function (k) { if (s[k]) setRadio(k, s[k]); });
+    } catch (e) {}
+  }
+  // Speichert auch unvollständige Eingaben, damit nichts verloren geht
+  function save() {
+    var s = { motor: radio('motor'), scope: radio('scope'), profile: radio('profile') };
+    FIELDS.forEach(function (k) { s[k] = $(k).value; });
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+  }
+
+  // Liest das Formular. Ein leeres Feld ist kein Fehler, nur ein ausgefülltes mit unpassendem Wert.
+  function read() {
+    var raw = { motor: radio('motor'), scope: radio('scope'), profile: radio('profile') }, filled = {}, ok = true;
+    FIELDS.forEach(function (k) { var v = $(k).value.trim(); filled[k] = v !== ''; raw[k] = parseFloat(v); });
+    function inRange(k, lo, hi) { return raw[k] >= lo && raw[k] <= hi; }
+    function check(id, good, msg) { var e = $(id); e.hidden = good; e.textContent = good ? '' : msg; if (!good) ok = false; }
+    check('err-weight', (!filled.bike || inRange('bike', 10, 45)) && (!filled.rider || inRange('rider', 40, 180)), T.errWeight);
+    check('err-power', !filled.power || inRange('power', 50, 500), T.errPower);
+    check('err-cadence', !filled.cadence || inRange('cadence', 40, 120), T.errCadence);
+    raw.complete = ok && !!raw.motor && FIELDS.every(function (k) { return filled[k]; });
+    raw.hasWeight = filled.bike && filled.rider && raw.bike === raw.bike && raw.rider === raw.rider;
+    return raw;
+  }
+
+  // Hinweise neben den Eingaben, auch wenn noch nicht alles ausgefüllt ist
+  function hints(inp) {
+    var M = inp.motor ? C.MOTORS[inp.motor] : null;
+    $('total').textContent = inp.hasWeight ? one(inp.bike + inp.rider) + ' kg' : '–';
+    $('motorHint').textContent = M ? T.motorHint(M.nm, w(M.watt), M.boostNm, w(M.boostW)) : T.motorChoose;
+    if (inp.scope === 'all') {
+      var names = M ? C.LADDERS[inp.motor].map(function (d) { return d.name; }) : null;
+      $('scopeHint').textContent = names ? T.scopeAllHint(names.length, names.join(', ')) : T.motorChoose;
+    } else {
+      $('scopeHint').textContent = T.scopeFourHint;
+    }
+    $('profileField').hidden = inp.scope === 'all';
+    $('profileHint').textContent = T.profileHint[inp.profile];
+  }
+
+  function alText(m) { return m.alLo === m.alHi ? String(m.alLo) : m.alLo + ' – ' + m.alHi; }
+  function pctText(m) { return m.alLo === m.alHi ? T.pct(m.pctHi) : T.pct(m.pctLo, m.pctHi); }
+  function powText(m) {
+    return (Math.round(m.flat) === Math.round(m.climb) ? w(m.climb) : w(m.flat) + ' – ' + w(m.climb)) + ' W';
+  }
+
+  function notesFor(m, inp) {
+    var out = [], eps = 0.5, cad = inp.cadence;
+    var reach = Math.min(m.watt, m.alWatt);
+    if (m.nmWatt < reach - eps) out.push({ w: true, t: T.nNm(cad, w(m.nmWatt), w(m.watt), m.rpmForMax) });
+    if (m.alWatt < m.watt - eps) out.push({ t: T.nAl(w(inp.power), w(m.alWatt), w(m.watt)) });
+    if (m.band) {
+      if (m.wkg < m.band[0] - 0.005) out.push({ w: true, t: T.nBelow(one(m.band[0]), one(m.band[1])) });
+      else out.push({ t: T.nBand(one(m.band[0]), one(m.band[1])) });
+    }
+    if (m.flags.nmMin || m.flags.wattMin) out.push({ t: T.nMin });
+    if (m.flags.nmSpread) out.push({ t: T.nSpread });
+    return out;
+  }
+
+  function render(inp) {
+    var r = C.compute(inp), M = r.motor, scale = M.boostW;
+    last = r; lastInp = inp;
+    $('summary').textContent = T.summary(M.label, one(r.kg), inp.cadence, w(inp.power));
+
+    var h = '<div class="row head"><span class="label">' + T.thMode + '</span><span class="label">' + T.thAL + '</span><span class="label">' + T.thW + '</span><span class="label">' + T.thNm + '</span><span class="label meterhead">' + T.thMotorAt(inp.cadence) + '</span></div>';
+    var zone = null;
+    r.modes.forEach(function (m) {
+      if (r.ladder && m.zone !== zone) { zone = m.zone; h += '<div class="row zone"><span class="label" style="grid-column:1/-1">' + T.zones[zone] + '</span></div>'; }
+      h += '<div class="row" style="--m:' + COLORS[m.name] + '">' +
+        '<span class="mode"><i class="sw"></i><b>' + m.name + '</b>' + (r.ladder && m.custom ? '<span class="tag">' + T.tagNew + '</span>' : '') + '</span>' +
+        '<span class="val">' + alText(m) + '<small>' + pctText(m) + '</small></span>' +
+        '<span class="val">' + w(m.watt) + '</span>' +
+        '<span class="val">' + m.nm + '</span>' +
+        '<span class="meter"><span class="track"><i class="climb" style="width:' + (m.climb / scale * 100).toFixed(1) + '%"></i><i style="width:' + (m.flat / scale * 100).toFixed(1) + '%"></i></span>' +
+        '<span><b>' + powText(m) + '</b> · ' + kgf(m.wkg) + ' W/kg</span></span></div>';
+    });
+    var b = r.boost;
+    h += '<div class="row" style="--m:var(--boost)">' +
+      '<span class="mode"><i class="sw"></i><b>BOOST</b><span class="tag">' + T.tagFixed + '</span></span>' +
+      '<span class="val">15<small>' + T.pct(b.pct) + '</small></span><span class="val">' + w(b.watt) + '</span><span class="val">' + b.nm + '</span>' +
+      '<span class="meter"><span class="track"><i style="width:' + (b.climb / scale * 100).toFixed(1) + '%"></i></span>' +
+      '<span><b>' + w(b.climb) + ' W</b> · ' + kgf(b.wkg) + ' W/kg</span></span></div>';
+    $('list').innerHTML = h;
+    $('legendLine').textContent = T.legend(inp.cadence, w(inp.power), w(scale));
+
+    var c = '';
+    r.modes.concat([b]).forEach(function (m) {
+      var boost = m.name === 'BOOST', two = !boost && m.alLo !== m.alHi;
+      c += '<article class="card"' + (boost ? '' : ' style="--m:' + COLORS[m.name] + '"') + '>' +
+        '<div class="band' + (boost ? ' boost' : '') + '"><b>' + m.name + '</b><span>' +
+        T.alLabel + ' ' + (boost ? '15' : alText(m)) + ' · ' + w(m.watt) + ' W · ' + m.nm + ' Nm</span></div>' +
+        '<table><thead><tr><th>' + T.thRpm + '</th>' + (two ? '<th>' + T.thFlat + '</th><th>' + T.thClimb + '</th>' : '<th>' + T.thMotor + '</th>') + '<th>W/kg</th></tr></thead><tbody>';
+      m.rows.forEach(function (x) {
+        c += '<tr' + (x.pref ? ' class="pref"' : '') + '><td>' + x.rpm + '</td>' + (two ? '<td>' + w(x.flat) + '</td>' : '') + '<td>' + w(x.climb) + '</td><td>' + kgf(x.wkg) + '</td></tr>';
+      });
+      c += '</tbody></table><div class="notes">';
+      var ns = boost ? [{ t: T.nBoost(w(b.watt), b.rpmForMax) }] : notesFor(m, inp);
+      if (!ns.length) ns = [{ t: T.nFull }];
+      ns.forEach(function (n) { c += '<p' + (n.w ? ' class="w"' : '') + '>' + n.t + '</p>'; });
+      c += '</div></article>';
+    });
+    $('cards').innerHTML = c;
+
+    var names = C.LADDERS[inp.motor].map(function (d) { return d.name; });
+    var rules = T.rules(one(r.kg), inp.cadence, w(inp.power));
+    if (r.ladder) rules.push(T.rule5(names.slice(0, 2).join(', ')));
+    $('rules').innerHTML = rules.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+    $('tips').innerHTML = (r.ladder ? T.tipsLadder : T.tipsFour).map(function (t) { return '<li>' + t + '</li>'; }).join('');
+  }
+
+  function copyText() {
+    if (!last) return '';
+    var r = last, i = lastInp, out = [T.shareHead(r.motor.label, one(r.kg), i.cadence, w(i.power))];
+    r.modes.forEach(function (m) { out.push(T.shareLine(m.name, alText(m).replace(/ /g, ''), w(m.watt), m.nm)); });
+    return out.join('\n');
+  }
+
+  function update(fromUser) {
+    var inp = read();
+    hints(inp);
+    $('empty').hidden = inp.complete;
+    $('results').hidden = !inp.complete;
+    if (inp.complete) render(inp);
+    else { last = null; lastInp = null; }
+    if (fromUser) save();
+  }
+
+  // Zurücksetzen mit Rückfrage: erster Klick fragt, zweiter löscht
+  var resetArmed = false, resetTimer = null;
+  function disarmReset() { resetArmed = false; clearTimeout(resetTimer); $('reset').textContent = T.reset; $('reset').classList.remove('armed'); }
+  $('reset').addEventListener('click', function () {
+    if (!resetArmed) {
+      resetArmed = true; $('reset').textContent = T.resetConfirm; $('reset').classList.add('armed');
+      resetTimer = setTimeout(disarmReset, 4000);
+      return;
+    }
+    disarmReset();
+    FIELDS.forEach(function (k) { $(k).value = ''; });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="motor"]'), function (el) { el.checked = false; });
+    setRadio('scope', 'four'); setRadio('profile', 'allround');
+    $('gear').value = ''; $('copyfallback').hidden = true;
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    update(false);
+  });
+
+  $('inputs').addEventListener('input', function () { update(true); });
+  $('inputs').addEventListener('submit', function (e) { e.preventDefault(); });
+  function gearPick() {
+    var g = $('gear').value; if (!g) return;
+    $('cadence').value = CAD[$('ring').value][g];
+    update(true);
+  }
+  $('gear').addEventListener('change', gearPick);
+  $('ring').addEventListener('change', gearPick);
+
+  $('copy').addEventListener('click', function () {
+    var txt = copyText(), btn = $('copy'), fb = $('copyfallback');
+    function done() { btn.textContent = T.copied; setTimeout(function () { btn.textContent = T.copyBtn; }, 1800); }
+    function fallback() { fb.hidden = false; fb.value = txt; fb.focus(); fb.select(); btn.textContent = T.copyFallback; }
+    try { navigator.clipboard.writeText(txt).then(done, fallback); } catch (e) { fallback(); }
+  });
+
+  function chooseLang(l) {
+    setLang(l);
+    try { localStorage.setItem(LANGKEY, l); } catch (e) {}
+    resetArmed = false; clearTimeout(resetTimer); $('reset').classList.remove('armed');
+    applyStatic();
+    update(false);
+  }
+  $('lang-de').addEventListener('click', function () { chooseLang('de'); });
+  $('lang-en').addEventListener('click', function () { chooseLang('en'); });
+
+  setLang(lang);
+  applyStatic();
+  load();
+  update(false);
+})();
+</script>
+</body>
+</html>
