@@ -9,8 +9,11 @@ Ein inoffizieller Rechner für E-Bike-Antriebe Avinox M1, M2 und M2S. Aus Motor,
 ## Was der Rechner kann
 - Vier Werksmodi (ECO, AUTO, TRAIL, TURBO) in den Ausrichtungen Alleskönner, Langstrecke und Power, oder alle Stufen mit Zusatzmodi (8 beim M1, 9 bei M2 und M2S).
 - Je Modus die Motorleistung nach Trittfrequenz, mit Hinweis, wenn die Wattgrenze bei der eigenen Trittfrequenz nicht erreicht wird.
-- Profile für mehrere Fahrer, jedes mit eigenem Namen und eigenen Eingaben. Eingaben werden ausdrücklich gespeichert, ein neues Profil beginnt leer.
-- Setup als Text teilen oder kopieren.
+- Profile für mehrere Fahrer, jedes mit eigenem Namen und eigenen Eingaben. Profile lassen sich als Datei sichern und wieder laden; die Datei ist in App und Web-Version dieselbe.
+- Akku-Auswahl beim M2S: im Boost 1.500 W mit FP700/RS800, 1.300 W mit FS800/FS600.
+- Setup als Text teilen oder kopieren, als Link teilen, der die Web-Version mit denselben Werten öffnet, oder als kompakte Setup-Karte mit Kästchen zum Abhaken drucken.
+- Dunkles und helles Design.
+- Hinter dem Schalter *Erweitert*: eine Checkliste für das Übertragen in die Avinox Ride App, Nachstellen jedes Werts von Hand in den Schritten der App (Assist Level 1, Watt 50, Nm 5), geschätzte Steigung statt W/kg und ein Vergleich mit einer anderen Ausrichtung oder einem anderen Profil.
 - Kein Internetzugriff, keine Werbung, keine Datensammlung. Die Eingaben bleiben auf dem Gerät.
 - Oberfläche auf Deutsch und Englisch. Die App folgt der Sprache des Handys und lässt sich unter Info umstellen.
 
@@ -31,7 +34,9 @@ Die APK aus den [Releases](https://github.com/th3-s1nc/Setup-Calculator-for-Avin
 Projektordner in Android Studio öffnen, Gradle-Sync abwarten, Run drücken. Nötig sind Android SDK Platform 35 und JDK 17 oder neuer (das in Android Studio mitgelieferte JDK reicht). Tests: `./gradlew test`.
 
 ## Web-Version
-Erreichbar unter <https://th3-s1nc.github.io/Setup-Calculator-for-Avinox/>. `docs/index.html` ist der Rechner (Deutsch und Englisch, mit Umschalter) als einzelne Datei ohne Server und ohne externe Abhängigkeiten; GitHub Pages liefert sie aus dem Ordner `/docs` von `main`. Die Web-Version hat keine Fahrerprofile und merkt sich einen Satz Eingaben im Browser.
+Erreichbar unter <https://th3-s1nc.github.io/Setup-Calculator-for-Avinox/>. `docs/index.html` ist der Rechner (Deutsch und Englisch, mit Umschalter) als einzelne Datei ohne Server und ohne externe Abhängigkeiten; GitHub Pages liefert sie aus dem Ordner `/docs` von `main`. Eingaben und Profile liegen nur im Browser des Besuchers; wer die Browserdaten löscht, löscht auch sie. Deshalb lassen sich Profile als Datei sichern und wieder laden.
+
+Die Web-Version hat dieselben Funktionen wie die App. Ihre Eingaben, Profile und Einstellungen sind von denen der App getrennt; mit einer Sicherung der Profile wandern sie von der einen zur anderen.
 
 ## Aufbau
 - `app/src/main/java/io/github/th3s1nc/setuprechner/calc/SetupCalculator.kt`: der Rechenkern, reines Kotlin. Zielwerte, Modus-Leitern und Motor-Eckdaten stehen oben in der Datei.

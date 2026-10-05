@@ -9,8 +9,11 @@ An unofficial setup calculator ("Setup-Rechner für Avinox") for Avinox M1, M2 a
 ## What it does
 - The four stock modes (ECO, AUTO, TRAIL, TURBO) in three flavours (all-rounder, long distance, power), or the full ladder with additional custom modes (8 steps on the M1, 9 on M2 and M2S).
 - For each mode, motor power by cadence, with a note when the watt limit cannot be reached at your own cadence.
-- Profiles for several riders, each with its own name and inputs. Inputs are saved explicitly; a new profile starts empty.
-- Share or copy the setup as text.
+- Profiles for several riders, each with its own name and inputs. Profiles can be backed up to a file and loaded again; the file is the same in the app and in the web version.
+- Battery choice for the M2S: 1,500 W in Boost with FP700/RS800, 1,300 W with FS800/FS600.
+- Share or copy the setup as text, share it as a link that opens the web version with the same values, or print it as a compact setup card with tick boxes.
+- Dark and light design.
+- Behind the *Advanced* switch: a checklist for entering the values in the Avinox Ride app, manual adjustment of each value in the app's own steps (assist level 1, watts 50, Nm 5), estimated gradient instead of W/kg, and a side-by-side comparison with another focus or another profile.
 - No internet access, no ads, no data collection. Your inputs stay on the device.
 - User interface in English and German. The app follows the phone's language and can be switched under Info.
 
@@ -31,11 +34,13 @@ Download the APK from the [releases](https://github.com/th3-s1nc/Setup-Calculato
 Open the project folder in Android Studio, wait for the Gradle sync, press Run. You need Android SDK Platform 35 and JDK 17 or newer (the JDK bundled with Android Studio is enough). Tests: `./gradlew test`.
 
 ## Web version
-Live at <https://th3-s1nc.github.io/Setup-Calculator-for-Avinox/>. `docs/index.html` is the calculator (English and German, with a switch) as a single file with no server and no external dependencies; GitHub Pages serves it from the `/docs` folder of `main`. The web version has no rider profiles and remembers one set of inputs in the browser.
+Live at <https://th3-s1nc.github.io/Setup-Calculator-for-Avinox/>. `docs/index.html` is the calculator (English and German, with a switch) as a single file with no server and no external dependencies; GitHub Pages serves it from the `/docs` folder of `main`. Inputs and profiles are stored only in the visitor's browser; clearing the browser data deletes them, so profiles can be backed up to a file and loaded again.
+
+The web version has the same functions as the app. Its inputs, profiles and settings are separate from the app's; a profile backup moves them from one to the other.
 
 ## Layout
 - `app/src/main/java/io/github/th3s1nc/setuprechner/calc/SetupCalculator.kt`: the calculation core, plain Kotlin. Targets, mode ladders and motor figures are at the top of the file.
-- `.../ui/`: Jetpack Compose user interface. `SetupText.kt` builds the texts and number formats from the language files.
+- `.../ui/`: Jetpack Compose user interface. `SetupText.kt` builds the texts and number formats from the language files, `Exchange.kt` holds the backup format and the share link, both shared with the web version.
 - `app/src/main/res/values/strings.xml` (English, default) and `values-de/strings.xml` (German): all texts.
 - `app/src/test/`: tests with examples from the guide.
 - `docs/index.html`: web version.

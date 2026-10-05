@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.th3s1nc.setuprechner.AppDesign
 import io.github.th3s1nc.setuprechner.AppLanguage
 import io.github.th3s1nc.setuprechner.R
 import io.github.th3s1nc.setuprechner.calc.SetupCalculator
@@ -26,7 +27,7 @@ import io.github.th3s1nc.setuprechner.calc.SetupCalculator
 /** Info: Rechenweg, Tipps zum Übertragen, Assist-Level-Tabelle und Quelle. */
 @Composable
 internal fun InfoTab(state: SetupState) {
-    val input = state.saved.toInput()
+    val input = state.savedInput()
     val text = rememberSetupText()
     val context = LocalContext.current
     val version = remember {
@@ -54,6 +55,13 @@ internal fun InfoTab(state: SetupState) {
                         onSelect = { AppLanguage.choose(context, it) }
                     )
                     Hint(stringResource(R.string.lang_hint))
+                }
+                Group(stringResource(R.string.design)) {
+                    Segmented(
+                        options = listOf(false to stringResource(R.string.design_dark), true to stringResource(R.string.design_light)),
+                        selected = AppDesign.isLight(context),
+                        onSelect = { AppDesign.choose(context, it) }
+                    )
                 }
             }
         }

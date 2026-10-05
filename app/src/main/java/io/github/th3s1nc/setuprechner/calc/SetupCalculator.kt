@@ -1,9 +1,13 @@
 package io.github.th3s1nc.setuprechner.calc
 
+import kotlin.math.asin
+import kotlin.math.atan
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
+import kotlin.math.tan
 
 /*
  * Rechenkern des Setup-Rechners. Reines Kotlin ohne Android-Abhängigkeiten.
@@ -15,7 +19,28 @@ import kotlin.math.min
 enum class Motor(val label: String, val nm: Int, val watt: Int, val boostNm: Int, val boostW: Int) {
     M1("M1", 105, 1000, 120, 1000),
     M2("M2", 110, 1000, 125, 1100),
-    M2S("M2S", 130, 1300, 150, 1500)
+    M2S("M2S", 130, 1300, 150, 1500);
+
+    /** true, wenn die Spitzenleistung im Boost vom Akku abhängt */
+    val needsBattery: Boolean get() = this == M2S
+
+    /** Spitzenleistung im Boost mit dem gewählten Akku. Ohne Angabe gilt der höhere Wert. */
+    fun boostWatt(battery: Battery?): Int = if (needsBattery && battery != null) battery.boostW else boostW
+}
+
+/** Akku des M2S. Laut DJI gibt es im Boost 1500 W mit FP700/RS800 und 1300 W mit FS800/FS600. */
+enum class Battery(val label: String, val boostW: Int) {
+    FP("FP700 / RS800", 1500),
+    FS("FS800 / FS600", 1300)
+}
+
+/**
+ * Anpassung von Hand, gespeichert als Abweichung vom berechneten Wert. So bleibt sie erhalten,
+ * wenn sich die Eingaben ändern. [al] gilt für Modi mit einem Assist Level, [alLo] und [alHi]
+ * für AUTO und TRAIL mit ihrem Bereich.
+ */
+data class Adjust(val al: Int = 0, val alLo: Int = 0, val alHi: Int = 0, val watt: Int = 0, val nm: Int = 0) {
+    val isZero: Boolean get() = al == 0 && alLo == 0 && alHi == 0 && watt == 0 && nm == 0
 }
 
 /** FOUR = die vier Werksmodi, ALL = alle Stufen wie im Blatt "Generelles Setup". */
@@ -34,7 +59,10 @@ data class SetupInput(
     val powerW: Double,
     val cadence: Int,
     val scope: Scope,
-    val profile: Profile
+    val profile: Profile,
+    val battery: Battery? = null,
+    /** Anpassungen von Hand je Modusname */
+    val adjust: Map<String, Adjust> = emptyMap()
 ) {
     val totalKg: Double get() = bikeKg + riderKg
 }
@@ -72,9 +100,33 @@ data class ModeResult(
     val rpmForMax: Int,
     val rows: List<CadenceRow>,
     val raisedToMinimum: Boolean,
-    val nmSpread: Boolean
+    val nmSpread: Boolean,
+    /** true bei AUTO und TRAIL: eigener Assist Level für Flaches und Anstieg */
+    val twoLevels: Boolean,
+    /** Berechnete Werte vor dem Nachstellen von Hand */
+    val calcWatt: Int,
+    val calcNm: Int,
+    val calcAlLo: Int,
+    val calcAlHi: Int,
+    /** Einstellbereich des Modus */
+    val alMin: Int,
+    val alMax: Int,
+    val nmMin: Int,
+    val nmMax: Int,
+    val wattMin: Int,
+    val wattMax: Int
 ) {
     val isRange: Boolean get() = alLo != alHi
+
+    /** Wirksame Abweichung vom berechneten Wert */
+    val dWatt: Int get() = watt - calcWatt
+    val dNm: Int get() = nm - calcNm
+    val dAlLo: Int get() = alLo - calcAlLo
+    val dAlHi: Int get() = alHi - calcAlHi
+    val adjusted: Boolean get() = dWatt != 0 || dNm != 0 || dAlLo != 0 || dAlHi != 0
+
+    /** Kennung der eingestellten Werte. Ein Haken in der Checkliste gilt nur, solange sie gleich bleibt. */
+    val signature: String get() = "$alLo-$alHi/$watt/$nm"
 }
 
 data class BoostResult(
@@ -126,6 +178,10 @@ object SetupCalculator {
         var alHi = 0
         var raised = false
         var spread = false
+        var calcWatt = 0
+        var calcNm = 0
+        var calcAlLo = 0
+        var calcAlHi = 0
     }
 
     /** Zielwerte in Watt Motorleistung je kg Gesamtgewicht (Guide 2.5, 3.5, 3.6). */
@@ -292,6 +348,23 @@ object SetupCalculator {
             }
         }
 
+        // 3b. Anpassungen von Hand, begrenzt auf den Einstellbereich des Modus
+        for (w in ws) {
+            val a = inp.adjust[w.def.name] ?: NO_ADJUST
+            val lim = w.lim
+            w.calcWatt = w.watt
+            w.calcNm = w.nm
+            w.calcAlLo = w.alLo
+            w.calcAlHi = w.alHi
+            w.watt = (w.watt + a.watt).coerceIn(lim.wMin, lim.wMax)
+            w.nm = (w.nm + a.nm).coerceIn(lim.nmMin, lim.nmMax)
+            var lo = (w.alLo + if (w.def.range) a.alLo else a.al).coerceIn(lim.alMin, lim.alMax)
+            val hi = (w.alHi + if (w.def.range) a.alHi else a.al).coerceIn(lim.alMin, lim.alMax)
+            if (lo > hi) lo = hi
+            w.alLo = lo
+            w.alHi = hi
+        }
+
         // 4. Leistungstabellen
         val modes = ws.map { w ->
             fun eff(al: Int, rpm: Int): Double =
@@ -321,24 +394,59 @@ object SetupCalculator {
                 rpmForMax = ceil(w.watt * K / w.nm - 1e-9).toInt(),
                 rows = rows,
                 raisedToMinimum = w.raised,
-                nmSpread = w.spread
+                nmSpread = w.spread,
+                twoLevels = w.def.range,
+                calcWatt = w.calcWatt,
+                calcNm = w.calcNm,
+                calcAlLo = w.calcAlLo,
+                calcAlHi = w.calcAlHi,
+                alMin = w.lim.alMin,
+                alMax = w.lim.alMax,
+                nmMin = w.lim.nmMin,
+                nmMax = w.lim.nmMax,
+                wattMin = w.lim.wMin,
+                wattMax = w.lim.wMax
             )
         }
 
+        val boostW = motor.boostWatt(inp.battery)
         fun boostAt(rpm: Int): Double =
-            min(min(motor.boostNm * rpm / K, motor.boostW.toDouble()), AL[15] / 100.0 * own)
+            min(min(motor.boostNm * rpm / K, boostW.toDouble()), AL[15] / 100.0 * own)
         val boost = BoostResult(
             nm = motor.boostNm,
-            watt = motor.boostW,
+            watt = boostW,
             pct = AL[15],
             atCadence = boostAt(cad),
             wkg = boostAt(cad) / kg,
-            rpmForMax = ceil(motor.boostW * K / motor.boostNm - 1e-9).toInt(),
+            rpmForMax = ceil(boostW * K / motor.boostNm - 1e-9).toInt(),
             rows = OFFSETS.map { dx ->
                 val p = boostAt(cad + dx)
                 CadenceRow(cad + dx, p, p, p / kg, dx == 0)
             }
         )
         return SetupResult(motor, kg, modes, boost, isLadder)
+    }
+
+    private val NO_ADJUST = Adjust()
+
+    // Annahmen der Steigungsschätzung: Verlust im Antrieb, Rollwiderstand (fester Untergrund),
+    // Luftwiderstandsfläche in m², Luftdichte, Erdbeschleunigung
+    private const val ETA = 0.96
+    private const val CRR = 0.015
+    private const val CDA = 0.6
+    private const val RHO = 1.2
+    private const val G = 9.81
+
+    /**
+     * Steigung in Prozent, die sich mit der Gesamtleistung (Fahrer + Motor) bei einem Tempo halten lässt.
+     * Unendlich, wenn die Leistung für jede Steigung reicht.
+     */
+    fun grade(totalW: Double, kg: Double, kmh: Double): Double {
+        val v = kmh / 3.6
+        val force = totalW * ETA / v - 0.5 * RHO * CDA * v * v
+        val k = force / (kg * G)
+        val n = sqrt(1.0 + CRR * CRR)
+        if (k >= n) return Double.POSITIVE_INFINITY
+        return tan(asin(k / n) - atan(CRR)) * 100.0
     }
 }

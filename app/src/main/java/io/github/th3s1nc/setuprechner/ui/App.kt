@@ -52,7 +52,7 @@ fun SetupApp() {
         SetupState(context.getSharedPreferences("setup", Context.MODE_PRIVATE))
     }
     // Solange für das aktive Profil nichts gespeichert ist, zuerst die Eingaben zeigen.
-    var tabIndex by rememberSaveable { mutableStateOf(if (state.saved.complete) Tab.SETUP.ordinal else Tab.INPUT.ordinal) }
+    var tabIndex by rememberSaveable { mutableStateOf(if (state.saved.usable) Tab.SETUP.ordinal else Tab.INPUT.ordinal) }
     val tab = Tab.values()[tabIndex]
 
     Scaffold(

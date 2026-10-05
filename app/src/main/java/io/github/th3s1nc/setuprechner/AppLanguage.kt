@@ -39,7 +39,8 @@ object AppLanguage {
         return base.createConfigurationContext(config)
     }
 
-    private fun findActivity(context: Context): Activity? {
+    /** Die Activity hinter einem Kontext, auch wenn er (wie nach [wrap]) verpackt ist. */
+    fun findActivity(context: Context): Activity? {
         var c: Context? = context
         while (c != null) {
             if (c is Activity) return c

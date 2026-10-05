@@ -82,4 +82,44 @@ class SetupCalculatorTest {
         assertEquals(825.0, turbo.climb, 0.5)
         assertEquals(78, turbo.rpmForMax)
     }
+
+    @Test
+    fun batteryOfTheM2S() {
+        // DJI: im Boost 1500 W mit FP700/RS800, 1300 W mit FS800/FS600. Die Modi bleiben bei 1300 W.
+        fun boost(battery: Battery?) = SetupCalculator.compute(
+            SetupInput(Motor.M2S, 22.0, 90.0, 300.0, 95, Scope.ALL, Profile.ALLROUND, battery)
+        )
+        assertEquals(1500, boost(Battery.FP).boost.watt)
+        assertEquals(1300, boost(Battery.FS).boost.watt)
+        assertEquals(1500, boost(null).boost.watt)
+        assertEquals(boost(Battery.FP).modes.map { it.signature }, boost(Battery.FS).modes.map { it.signature })
+        assertEquals(1000, SetupCalculator.compute(SetupInput(Motor.M1, 23.0, 87.0, 200.0, 75, Scope.FOUR, Profile.ALLROUND, Battery.FS)).boost.watt)
+    }
+
+    @Test
+    fun adjustByHand() {
+        fun auto(adjust: Map<String, Adjust>) = SetupCalculator.compute(
+            SetupInput(Motor.M1, 23.0, 87.0, 200.0, 75, Scope.FOUR, Profile.ALLROUND, null, adjust)
+        ).modes[1]
+        val plain = auto(emptyMap())
+        assertEquals("4-6/300/40", plain.signature)
+        assertEquals(false, plain.adjusted)
+        val changed = auto(mapOf("AUTO" to Adjust(alHi = 1, nm = -5)))
+        assertEquals("4-7/300/35", changed.signature)
+        assertEquals(true, changed.adjusted)
+        assertEquals(40, changed.calcNm)
+        assertEquals(-5, changed.dNm)
+        // Der Einstellbereich des Modus begrenzt die Anpassung: AUTO geht bis Level 11 und 105 Nm.
+        val capped = auto(mapOf("AUTO" to Adjust(alHi = 9, nm = 500, watt = -5000)))
+        assertEquals("4-11/200/105", capped.signature)
+    }
+
+    @Test
+    fun gradeEstimate() {
+        // 110 kg, 200 W Fahrer + 600 W Motor bei 15 km/h: rund 15 %
+        assertEquals(15.4, SetupCalculator.grade(800.0, 110.0, 15.0), 0.3)
+        // langsamer ist steiler, mehr Gewicht ist flacher
+        assertEquals(true, SetupCalculator.grade(800.0, 110.0, 13.0) > SetupCalculator.grade(800.0, 110.0, 15.0))
+        assertEquals(true, SetupCalculator.grade(800.0, 140.0, 15.0) < SetupCalculator.grade(800.0, 110.0, 15.0))
+    }
 }

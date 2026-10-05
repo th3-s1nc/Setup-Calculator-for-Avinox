@@ -144,16 +144,168 @@ button.reset { align-self: flex-start; font: 600 0.9rem/1 var(--f-display); padd
 button.reset:hover { color: var(--fg); border-color: var(--muted); }
 button.reset.armed { color: var(--warn); border-color: var(--warn); }
 button.reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+
+/* Helles Design: vom Umschalter gesetzt, unabhängig von der Systemeinstellung */
+:root { --boost-ink: #14181d; }
+:root[data-look="light"] {
+  color-scheme: light;
+  --bg: #f1f2f4; --surface: #ffffff; --sunken: #e6e8ec; --fg: #16181d; --muted: #5b6470; --line: #d5d9df;
+  --accent: #c2410c; --accent-fg: #ffffff; --warn: #9a5b00; --boost: #3a4049; --boost-ink: #ffffff;
+}
+.band.boost { color: var(--boost-ink); }
+.toprow { flex-wrap: wrap; }
+.toggles { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.viewbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.speed { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--muted); }
+.speed span { min-width: 9ch; text-align: center; color: var(--fg); font-weight: 600; }
+.sb { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 600 1.05rem/1 var(--f-display); cursor: pointer; padding: 0; }
+.sb:hover:not(:disabled) { border-color: var(--muted); }
+.sb:disabled { opacity: 0.35; cursor: default; }
+.sb:focus-visible, .tgl:focus-visible, .link:focus-visible, .chk:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Liste mit Haken links und Dreieck rechts */
+.row { grid-template-columns: 22px minmax(112px, 1fr) 92px 78px 66px minmax(150px, 1.5fr) 30px; }
+.chk { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.row.done .val, .row.done .mode b { color: var(--muted); }
+.val.adj, .stp b.adj { color: var(--accent); }
+.tag.adj { color: var(--accent); border-color: var(--accent); }
+.tgl { width: 30px; height: 30px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; border-radius: 6px; padding: 0; }
+.tgl:hover { background: var(--sunken); }
+.tri { width: 11px; height: 7px; background: var(--muted); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.row.open .tri { clip-path: polygon(0 100%, 50% 0, 100% 100%); background: var(--accent); }
+.adjust { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start; padding: 12px 16px 14px; background: var(--bg); border-top: 1px solid var(--line); }
+.stp { display: flex; flex-direction: column; gap: 5px; }
+.stp .ctl { display: flex; align-items: center; gap: 8px; }
+.stp b { font: 700 1.1rem/1 var(--f-display); min-width: 4ch; text-align: center; }
+.stp small { font-size: 0.74rem; color: var(--muted); }
+.stp.end { justify-content: center; align-self: center; }
+.adjhint { flex-basis: 100%; font-size: 0.8rem; color: var(--muted); }
+.link { background: none; border: 0; padding: 4px 0; color: var(--accent); font: 600 0.88rem/1.2 var(--f-display); cursor: pointer; }
+.link:disabled { color: var(--muted); opacity: 0.5; cursor: default; }
+.progress { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; font-size: 0.9rem; font-weight: 500; }
+@media (max-width: 640px) {
+  .row { grid-template-columns: 22px minmax(0, 1fr) 62px 54px 42px 28px; gap: 6px 8px; }
+  .row .meter { grid-column: 1 / -1; grid-row: 2; }
+  .row .tgl { grid-column: 6; grid-row: 1; width: 28px; }
+}
+
+
+/* Schalter "Erweitert": aus = Standardrechner ohne Haken, Anpassen und Steigung */
+.switch { display: inline-flex; align-items: center; gap: 9px; background: none; border: 0; padding: 5px 0; cursor: pointer; color: var(--fg); font: 600 0.95rem/1 var(--f-display); letter-spacing: 0.02em; }
+.switch .knob { width: 36px; height: 20px; border-radius: 10px; background: var(--sunken); border: 1px solid var(--line); position: relative; flex: none; box-sizing: border-box; transition: background 0.15s, border-color 0.15s; }
+.switch .knob::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform 0.15s, background 0.15s; }
+.switch[aria-checked="true"] .knob { background: var(--accent); border-color: var(--accent); }
+.switch[aria-checked="true"] .knob::after { transform: translateX(16px); background: var(--accent-fg); }
+.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.advhint { font-size: 0.84rem; color: var(--muted); }
+.gradeshort { font-size: 0.88rem; color: var(--fg); border-left: 3px solid var(--accent); padding: 2px 0 2px 10px; }
+.list.basic .row { grid-template-columns: minmax(112px, 1fr) 92px 78px 66px minmax(150px, 1.5fr); }
+@media (max-width: 640px) {
+  .list.basic .row { grid-template-columns: minmax(0, 1fr) 70px 58px 46px; gap: 6px 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .switch .knob, .switch .knob::after { transition: none; } }
+
+
+
+
+
+/* Profile, Teilen, Vergleich und Druckansicht */
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.acts { display: flex; flex-wrap: wrap; gap: 8px; }
+button.act.quiet { border-color: var(--line); color: var(--fg); }
+button.act.quiet:hover { background: var(--sunken); color: var(--fg); border-color: var(--muted); }
+.profiles { padding-bottom: 16px; border-bottom: 1px solid var(--line); gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 600 0.9rem/1 var(--f-display); padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip:hover { border-color: var(--muted); }
+.chip[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--sunken); }
+.chip.add { border-style: dashed; color: var(--muted); }
+.chip .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); margin-left: 7px; vertical-align: 1px; }
+.profrow { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 0.86rem; line-height: 1.35; }
+.profrow.warn > span { color: var(--warn); flex: 1 1 100%; }
+.profrow .hint { flex: 1 1 100%; }
+.mini { font: 600 0.86rem/1 var(--f-display); padding: 8px 11px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.mini:hover { border-color: var(--muted); }
+.mini.go { border-color: var(--accent); color: var(--accent); }
+.mini.go:hover { background: var(--accent); color: var(--accent-fg); }
+.txt { flex: 1 1 120px; min-width: 0; font: 600 1rem/1 var(--f-display); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+.link.danger { color: var(--muted); margin-left: auto; }
+.link.danger:hover { color: var(--warn); }
+.chip:focus-visible, .mini:focus-visible, .txt:focus-visible, .cmpbar select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#profFallback { width: 100%; min-height: 7em; font: 0.8rem/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 7px; padding: 8px; }
+.notice { background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-size: 0.92rem; }
+.notice span { flex: 1 1 260px; }
+.cmpbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.cmpbar label { font: 600 0.95rem/1.2 var(--f-display); }
+.cmpbar select { font: 600 0.95rem/1.2 var(--f-display); padding: 8px 10px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); max-width: 100%; min-width: 0; }
+.list.cmp .row { grid-template-columns: minmax(96px, 0.5fr) minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+.list.cmp .row .mode { padding-top: 2px; }
+.cval, .chead { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cval b { font: 600 1.02rem/1.25 var(--f-display); }
+.cval small, .chead small { font-size: 0.8rem; color: var(--muted); line-height: 1.3; }
+.cval .adj { color: var(--accent); }
+.cval.none { color: var(--muted); }
+.chead b { font: 600 0.98rem/1.2 var(--f-display); overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .list.cmp .row { grid-template-columns: 74px minmax(0, 1fr) minmax(0, 1fr); gap: 6px 8px; }
+  .list.cmp .mode { gap: 6px; }
+  .list.cmp .mode b { font-size: 0.9rem; }
+  .cval b { font-size: 0.9rem; }
+  .cval small, .chead small { font-size: 0.74rem; }
+}
+/* Die Eingabespalte bleibt stehen. Ist sie höher als das Fenster, rollt sie in sich, damit alles erreichbar bleibt. */
+@media (min-width: 901px) { .panel { max-height: calc(100vh - 32px); overflow-y: auto; scrollbar-width: thin; } }
+/* Setup-Karte: immer hell wie Papier, unabhängig vom gewählten Design */
+.sheetwrap { max-width: 820px; margin: 0 auto; padding: 20px 16px 40px; display: flex; flex-direction: column; gap: 14px; }
+.sheetbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.sheetbar .hint { flex: 1 1 220px; }
+.sheet { background: #fff; color: #111418; border-radius: 6px; padding: 28px 30px; display: flex; flex-direction: column; gap: 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.sheet h1 { font-size: 1.6rem; color: #111418; }
+.sheet .sub { color: #555c66; font-size: 0.9rem; }
+.sheet dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 18px; margin: 0; padding: 12px 0; border-block: 1px solid #c9ced6; }
+.sheet dt { font: 600 0.7rem/1.2 var(--f-display); letter-spacing: 0.07em; text-transform: uppercase; color: #555c66; }
+.sheet dd { margin: 2px 0 0; font: 600 1rem/1.3 var(--f-display); }
+.sheet table { width: 100%; border-collapse: collapse; }
+.sheet th { font: 600 0.7rem/1.2 var(--f-display); letter-spacing: 0.06em; text-transform: uppercase; color: #555c66; text-align: right; padding: 6px 8px; border-bottom: 2px solid #111418; vertical-align: bottom; }
+.sheet td { text-align: right; padding: 8px; border-bottom: 1px solid #c9ced6; font: 700 1.08rem/1.2 var(--f-display); vertical-align: middle; }
+.sheet td small { display: block; font: 400 0.74rem/1.2 var(--f-body); color: #555c66; }
+.sheet th:nth-child(2), .sheet td:nth-child(2) { text-align: left; white-space: nowrap; }
+.sheet td.soft { font-weight: 500; font-size: 0.95rem; color: #333a44; }
+.sheet td.box { width: 28px; padding-right: 0; text-align: left; }
+.sheet td.box i { display: inline-block; width: 15px; height: 15px; border: 1.5px solid #111418; border-radius: 3px; vertical-align: middle; }
+.sheet .sw { display: inline-block; width: 11px; height: 11px; margin-right: 8px; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25); }
+.sheet tr.zone td { text-align: left; font: 600 0.7rem/1.2 var(--f-display); letter-spacing: 0.07em; text-transform: uppercase; color: #555c66; background: #eef0f3; padding: 5px 8px; }
+.sheet .foot { font-size: 0.78rem; line-height: 1.4; color: #555c66; display: flex; flex-direction: column; gap: 4px; }
+@media screen and (max-width: 640px) {
+  .sheet { padding: 18px 14px; }
+  .sheet .opt { display: none; }
+  .sheet th, .sheet td { padding: 7px 5px; }
+  .sheet td { font-size: 1rem; }
+}
+@media print {
+  .has-sheet body { background: #fff; }
+  .has-sheet .wrap { display: none !important; }
+  .has-sheet #sheetWrap { display: flex !important; padding: 0; max-width: none; }
+  .has-sheet .sheetbar { display: none !important; }
+  .has-sheet .sheet { padding: 0; border-radius: 0; }
+  @page { margin: 14mm; }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="app">
   <header class="top">
     <div class="toprow">
       <span class="label">M1 · M2 · M2S</span>
-      <div class="lang" role="group" aria-label="Sprache / Language">
-        <button type="button" id="lang-de" aria-pressed="false">DE</button>
-        <button type="button" id="lang-en" aria-pressed="false">EN</button>
+      <div class="toggles">
+        <div class="lang" role="group" id="lookGroup">
+          <button type="button" id="look-dark" aria-pressed="true" data-i18n="lookDark"></button>
+          <button type="button" id="look-light" aria-pressed="false" data-i18n="lookLight"></button>
+        </div>
+        <div class="lang" role="group" aria-label="Sprache / Language">
+          <button type="button" id="lang-de" aria-pressed="false">DE</button>
+          <button type="button" id="lang-en" aria-pressed="false">EN</button>
+        </div>
       </div>
     </div>
     <h1 id="h1"></h1>
@@ -162,6 +314,36 @@ button.reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
 
   <div class="layout">
     <form class="panel" id="inputs" autocomplete="off">
+      <div class="field profiles" id="profField">
+        <span class="legend" data-i18n="profTitle"></span>
+        <div class="chips" id="profChips"></div>
+        <div class="profrow" id="profNew" hidden>
+          <input type="text" class="txt" id="profName" maxlength="24" autocomplete="off">
+          <button type="button" class="mini go" id="profCreate" data-i18n="profSave"></button>
+          <button type="button" class="mini" id="profCancel" data-i18n="cancel"></button>
+          <span class="hint" data-i18n="profNewHint"></span>
+        </div>
+        <div class="profrow warn" id="profState" hidden>
+          <span id="profStateText"></span>
+          <button type="button" class="mini go" id="profSave" data-i18n="profSave"></button>
+          <button type="button" class="mini" id="profDiscard" data-i18n="profDiscard"></button>
+        </div>
+        <div class="profrow warn" id="profGuard" hidden>
+          <span data-i18n="profGuard"></span>
+          <button type="button" class="mini go" id="profSwitch" data-i18n="profSwitch"></button>
+          <button type="button" class="mini" id="profStay" data-i18n="cancel"></button>
+        </div>
+        <span class="hint" id="profHint"></span>
+        <div class="profrow">
+          <button type="button" class="link" id="profExport" data-i18n="profExport" hidden></button>
+          <button type="button" class="link" id="profImport" data-i18n="profImport"></button>
+          <button type="button" class="link danger" id="profDelete" hidden></button>
+          <input type="file" id="profFile" accept=".json,application/json" hidden>
+        </div>
+        <span class="hint" id="profMsg" role="status"></span>
+        <textarea id="profFallback" hidden readonly></textarea>
+      </div>
+
       <fieldset class="field">
         <span class="legend" data-i18n="motor"></span>
         <div class="seg">
@@ -170,6 +352,15 @@ button.reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
           <label><input type="radio" name="motor" id="motor-M2S" value="M2S">M2S</label>
         </div>
         <span class="hint" id="motorHint"></span>
+      </fieldset>
+
+      <fieldset class="field" id="batteryField" hidden>
+        <span class="legend" data-i18n="battery"></span>
+        <div class="seg">
+          <label><input type="radio" name="battery" id="battery-fp" value="fp">FP700 / RS800</label>
+          <label><input type="radio" name="battery" id="battery-fs" value="fs">FS800 / FS600</label>
+        </div>
+        <span class="hint" id="batteryHint"></span>
       </fieldset>
 
       <div class="field">
@@ -234,6 +425,11 @@ button.reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
     </form>
 
     <main>
+      <div class="notice" id="sharedBox" hidden>
+        <span id="sharedText"></span>
+        <button type="button" class="mini go" id="sharedBack" data-i18n="sharedBack"></button>
+        <button type="button" class="mini" id="sharedClose" data-i18n="close"></button>
+      </div>
       <div class="empty" id="empty" hidden>
         <h2 data-i18n="emptyTitle"></h2>
         <p data-i18n="emptyText"></p>
@@ -246,11 +442,50 @@ button.reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
             <h2 data-i18n="h2settings"></h2>
             <p id="summary"></p>
           </div>
-          <button type="button" class="act" id="copy"></button>
+          <div class="acts">
+            <button type="button" class="act" id="copy"></button>
+            <button type="button" class="act quiet" id="share"></button>
+            <button type="button" class="act quiet" id="print" data-i18n="printBtn"></button>
+          </div>
         </div>
+        <div class="viewbar">
+          <button type="button" class="switch" id="adv" role="switch" aria-checked="false"><i class="knob"></i><span data-i18n="adv"></span></button>
+          <span class="advhint" id="advHint" data-i18n="advHint"></span>
+          <div class="lang" role="group" id="unitGroup" hidden>
+            <button type="button" id="unit-wkg" aria-pressed="true">W/kg</button>
+            <button type="button" id="unit-grade" aria-pressed="false" data-i18n="unitGrade"></button>
+          </div>
+          <div class="speed" id="speedBox" hidden>
+            <button type="button" class="sb" id="speed-less">−</button>
+            <span id="speedText"></span>
+            <button type="button" class="sb" id="speed-more">+</button>
+          </div>
+        </div>
+        <p class="gradeshort" id="gradeShort" hidden></p>
         <div class="list" id="list"></div>
+        <div class="progress" id="progressBox" hidden>
+          <span id="progressText"></span>
+          <button type="button" class="link" id="clearChecks" data-i18n="clearChecks" hidden></button>
+        </div>
+        <p class="legend-line" id="progressHint" data-i18n="progressHint" hidden></p>
         <p class="legend-line" id="legendLine"></p>
+        <p class="legend-line" id="gradeNote" hidden></p>
         <textarea id="copyfallback" hidden readonly></textarea>
+      </section>
+
+      <section id="cmpSection" hidden>
+        <div class="sechead">
+          <div>
+            <h2 data-i18n="cmpTitle"></h2>
+            <p data-i18n="cmpSub"></p>
+          </div>
+        </div>
+        <div class="cmpbar">
+          <label for="cmpSel" data-i18n="cmpLabel"></label>
+          <select id="cmpSel"></select>
+        </div>
+        <p class="legend-line" id="cmpNone" data-i18n="cmpNone" hidden></p>
+        <div class="list cmp" id="cmpTable" hidden></div>
       </section>
 
       <section>
@@ -287,6 +522,15 @@ button.reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
   </footer>
 </div>
 
+<div class="sheetwrap" id="sheetWrap" hidden>
+  <div class="sheetbar">
+    <button type="button" class="mini" id="sheetBack" data-i18n="sheetBack"></button>
+    <button type="button" class="mini go" id="sheetPrint" data-i18n="sheetPrint"></button>
+    <span class="hint" data-i18n="sheetHint"></span>
+  </div>
+  <div class="sheet" id="sheet"></div>
+</div>
+
 <script>
 /* Rechenkern: Setup-Rechner für Avinox.
    Rechenweg nach dem Setup-Guide von Bernd Hemmersbach (Vorabfassung 11.05.2026)
@@ -299,8 +543,18 @@ var AvinoxCalc = (function () {
   var MOTORS = {
     M1:  { label: 'M1',  nm: 105, watt: 1000, boostNm: 120, boostW: 1000 },
     M2:  { label: 'M2',  nm: 110, watt: 1000, boostNm: 125, boostW: 1100 },
-    M2S: { label: 'M2S', nm: 130, watt: 1300, boostNm: 150, boostW: 1500 }
+    // Beim M2S hängt die Spitzenleistung laut DJI vom Akku ab: 1500 W mit FP700/RS800, 1300 W mit FS800/FS600
+    M2S: { label: 'M2S', nm: 130, watt: 1300, boostNm: 150, boostW: 1500, batteries: { fp: 1500, fs: 1300 } }
   };
+  // Motor mit der Spitzenleistung des gewählten Akkus. Ohne Angabe gilt der höhere Wert.
+  function motorFor(name, battery) {
+    var M = MOTORS[name];
+    if (!M || !M.batteries || !M.batteries[battery]) return M;
+    var out = {}, k;
+    for (k in M) out[k] = M[k];
+    out.boostW = M.batteries[battery];
+    return out;
+  }
 
   // Zielwerte in Watt Motorleistung je kg Gesamtgewicht (Guide 2.5, 3.5, 3.6)
   var PROFILES = {
@@ -445,6 +699,23 @@ var AvinoxCalc = (function () {
       if (modes[i].nm > capNm) { modes[i].nm = capNm; modes[i].flags.nmSpread = true; }
     }
 
+    // 3b. Anpassungen von Hand. Gespeichert ist die Abweichung vom berechneten Wert,
+    //     damit sie erhalten bleibt, wenn sich die Eingaben ändern.
+    var adjust = inp.adjust || {};
+    modes.forEach(function (ma) {
+      var a = adjust[ma.name] || {}, Lm = ma.lim;
+      ma.calc = { alLo: ma.alLo, alHi: ma.alHi, watt: ma.watt, nm: ma.nm };
+      ma.watt = clamp(ma.watt + (a.watt || 0), Lm.w[0], Lm.w[1]);
+      ma.nm = clamp(ma.nm + (a.nm || 0), Lm.nm[0], Lm.nm[1]);
+      var lo = clamp(ma.alLo + (ma.range ? (a.alLo || 0) : (a.al || 0)), Lm.al[0], Lm.al[1]);
+      var hi = clamp(ma.alHi + (ma.range ? (a.alHi || 0) : (a.al || 0)), Lm.al[0], Lm.al[1]);
+      if (lo > hi) lo = hi;
+      ma.alLo = lo; ma.alHi = hi;
+      ma.delta = { alLo: lo - ma.calc.alLo, alHi: hi - ma.calc.alHi, watt: ma.watt - ma.calc.watt, nm: ma.nm - ma.calc.nm };
+      ma.adjusted = !!(ma.delta.alLo || ma.delta.alHi || ma.delta.watt || ma.delta.nm);
+      ma.limits = Lm;
+    });
+
     // 4. Leistungstabellen
     modes.forEach(function (m4) {
       function eff(al, rpm) { return Math.min(AL[al] / 100 * own, m4.nm * rpm / K, m4.watt); }
@@ -465,7 +736,7 @@ var AvinoxCalc = (function () {
   }
 
   function compute(inp) {
-    var M = MOTORS[inp.motor], kg = inp.bike + inp.rider, defs, ladder = inp.scope === 'all';
+    var M = motorFor(inp.motor, inp.battery), kg = inp.bike + inp.rider, defs, ladder = inp.scope === 'all';
     if (ladder) defs = LADDERS[inp.motor];
     else {
       var P = PROFILES[inp.profile] || PROFILES.allround;
@@ -489,7 +760,20 @@ var AvinoxCalc = (function () {
     return { motor: M, kg: kg, modes: modes, boost: boost, ladder: ladder };
   }
 
-  return { AL: AL, K: K, MOTORS: MOTORS, PROFILES: PROFILES, LADDERS: LADDERS, compute: compute };
+  // Annahmen der Steigungsschätzung: Verlust im Antrieb, Rollwiderstand (fester Untergrund),
+  // Luftwiderstandsfläche in m², Luftdichte, Erdbeschleunigung
+  var GRADE = { eta: 0.96, crr: 0.015, cda: 0.6, rho: 1.2, g: 9.81 };
+
+  // Steigung in Prozent, die sich mit der Gesamtleistung (Fahrer + Motor) bei einem Tempo halten lässt
+  function grade(totalW, kg, kmh) {
+    var v = kmh / 3.6;
+    var force = totalW * GRADE.eta / v - 0.5 * GRADE.rho * GRADE.cda * v * v;
+    var k = force / (kg * GRADE.g), n = Math.sqrt(1 + GRADE.crr * GRADE.crr);
+    if (k >= n) return Infinity;
+    return Math.tan(Math.asin(k / n) - Math.atan(GRADE.crr)) * 100;
+  }
+
+  return { AL: AL, K: K, MOTORS: MOTORS, PROFILES: PROFILES, LADDERS: LADDERS, GRADE: GRADE, compute: compute, grade: grade, motorFor: motorFor };
 })();
 
 </script>
@@ -502,7 +786,12 @@ var AvinoxCalc = (function () {
                  TURBO: '#ff5a2b', POWER: '#f06ac0', BEAST: '#a97be8', 'ALL IN': '#f06ac0', MTWOS: '#a8e05f' };
   var CAD = { 34: { 12: 52, 11: 63, 10: 73, 9: 84, 8: 94 }, 36: { 12: 49, 11: 59, 10: 69, 9: 79, 8: 89 } };
   var TEETH = { 12: 10, 11: 12, 10: 14, 9: 16, 8: 18 };
-  var KEY = 'avinox-setup-v1', LANGKEY = 'setup-lang';
+  var KEY = 'avinox-setup-v1', LANGKEY = 'setup-lang', VIEWKEY = 'setup-view', PROFKEY = 'setup-profiles-v1';
+  var SITE = 'https://th3-s1nc.github.io/Setup-Calculator-for-Avinox/'; // Ziel der Links zum Teilen
+  var MAXPROF = 10, MAXNAME = 24;
+  var FOCUS = { allround: 'pAllround', long: 'pLong', power: 'pPower' }, BATT = { fp: 'FP700 / RS800', fs: 'FS800 / FS600' };
+  function has(o, k) { return typeof k === 'string' && Object.prototype.hasOwnProperty.call(o, k); }
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (ch) { return '&#' + ch.charCodeAt(0) + ';'; }); }
   var $ = function (id) { return document.getElementById(id); };
 
   // ---------------------------------------------------------------- Texte
@@ -511,10 +800,13 @@ var AvinoxCalc = (function () {
       locale: 'de-DE',
       title: 'Setup-Rechner für Avinox',
       lede: 'Aus Gewicht, Eigenleistung und Trittfrequenz entstehen Vorschläge für Assist Level, max. Watt und max. Nm in jedem Modus.',
-      reset: 'Zurücksetzen', resetConfirm: 'Wirklich alle Eingaben löschen?',
+      reset: 'Zurücksetzen', resetConfirm: 'Eingaben leeren? Profile bleiben.',
       emptyTitle: 'Noch kein Setup',
-      emptyText: 'Wähle deinen Motor und trag Gewicht, Eigenleistung und Trittfrequenz ein. Dann erscheinen hier die Einstellungen für jeden Modus.',
+      emptyText: 'Wähle deinen Motor (beim M2S auch den Akku) und trag Gewicht, Eigenleistung und Trittfrequenz ein. Dann erscheinen hier die Einstellungen für jeden Modus.',
       motorChoose: 'Wähle deinen Motor.',
+      battery: 'Akku', batteryChoose: 'Wähle deinen Akku. Beim M2S bestimmt er die Spitzenleistung im Boost: 1.500 W mit FP700 oder RS800, 1.300 W mit FS800 oder FS600.',
+      batteryHint: function (bw) { return 'Mit diesem Akku leistet der M2S im Boost bis ' + bw + ' W.'; },
+      motorHintOpen: function (nm, w, bnm) { return 'In den Modi bis ' + nm + ' Nm und ' + w + ' W, im Boost ' + bnm + ' Nm. Die Leistung im Boost hängt vom Akku ab.'; },
       motor: 'Motor', bike: 'Bike', rider: 'Fahrer',
       weightHint: 'Bike mit allem, was montiert ist. Fahrer abfahrtbereit mit Kleidung, Helm und Rucksack.',
       total: 'Gesamtgewicht',
@@ -536,7 +828,7 @@ var AvinoxCalc = (function () {
       alHint: 'Aus Testfahrten des Guide-Autors mit dem M1 ermittelt, von Avinox nicht bestätigt. Nahe 25 km/h und bei wenig Last fällt die Unterstützung geringer aus.',
       foot1: 'Rechenweg und Assist-Level-Werte stammen aus dem Setup-Guide von Bernd Hemmersbach (Vorabfassung vom 11.05.2026) und seinen Blättern „Generelles Setup“ für M1, M2 und M2S. Veröffentlicht mit Zustimmung des Autors.',
       foot2: 'Kein Werkzeug von Avinox oder DJI. Die Werte sind Startpunkte. Stimm sie nach Fahrgefühl nach.',
-      foot2Pages: 'Die Werte sind Startpunkte. Stimm sie nach Fahrgefühl nach. Kein Werkzeug von Avinox oder DJI. Avinox und DJI sind Marken ihrer jeweiligen Inhaber. Freie Software unter MIT-Lizenz, ohne Gewähr. Die Seite lädt nichts nach und speichert deine Eingaben nur in deinem Browser.',
+      foot2Pages: 'Die Werte sind Startpunkte. Stimm sie nach Fahrgefühl nach. Kein Werkzeug von Avinox oder DJI. Avinox und DJI sind Marken ihrer jeweiligen Inhaber. Freie Software unter MIT-Lizenz, ohne Gewähr. Die Seite lädt nichts nach.',
       errWeight: 'Bike zwischen 10 und 45 kg, Fahrer zwischen 40 und 180 kg eintragen.',
       errPower: 'Einen Wert zwischen 50 und 500 Watt eintragen.',
       errCadence: 'Einen Wert zwischen 40 und 120 U/min eintragen.',
@@ -572,6 +864,47 @@ var AvinoxCalc = (function () {
       tipsFour: ['Reihenfolge der Modi in der App auf ECO, AUTO, TRAIL, TURBO stellen. Dann schaltest du von schwach nach stark.',
         'Mit Echtzeit-Tuning änderst du den Assist Level unterwegs vom Lenker aus.'],
       level: 'Level',
+      lookDark: 'Dunkel', lookLight: 'Hell', lookAria: 'Design',
+      unitGrade: 'Steigung', unitAria: 'Anzeige', thGrade: 'Steigung',
+      speedAt: function (v) { return 'bei ' + v + ' km/h'; }, speedLess: 'Tempo senken', speedMore: 'Tempo erhöhen',
+      gradeTxt: function (p) { return 'ca. ' + p + ' %'; }, gradeMax: '> 40 %', gradeMin: '< 1 %',
+      gradeShort: function (kg, v) { return 'Die Steigung ist eine Schätzung: gerechnet mit ' + kg + ' kg Gesamtgewicht bei ' + v + ' km/h, auf festem Boden und im passenden Gang.'; },
+      gradeNote: function (v) { return 'So wird die Steigung geschätzt: aus Eigenleistung plus Motorleistung und Gesamtgewicht bei ' + v + ' km/h, mit Rollwiderstand 0,015, Luftwiderstandsfläche 0,6 m² und 4 % Verlust im Antrieb. Das gilt für festen Untergrund und setzt den passenden Gang voraus. Auf losem Boden ist es weniger.'; },
+      chkAria: function (m) { return m + ' als übertragen abhaken'; },
+      progress: function (n, t) { return n + ' von ' + t + ' Stufen in die Avinox Ride App übertragen.'; },
+      progressHint: 'Hak eine Stufe ab, sobald du sie eingetragen hast. Ändert sich einer ihrer Werte, verschwindet der Haken wieder. Das Dreieck rechts öffnet das Anpassen von Hand.',
+      clearChecks: 'Haken entfernen',
+      profTitle: 'Profile', profAdd: '+ Neues Profil', profSave: 'Speichern', profDiscard: 'Verwerfen', cancel: 'Abbrechen', close: 'Schließen',
+      profIntro: 'Speichere deine Eingaben unter einem Namen, zum Beispiel für mehrere Fahrer oder Bikes.',
+      profWarn: 'Profile liegen nur in diesem Browser. Wer die Browserdaten löscht, löscht auch sie. Sichere sie als Datei.',
+      profMax: 'Mehr als 10 Profile gehen nicht.',
+      profNameAria: 'Name des Profils', profNamePh: 'Name, zum Beispiel Franz', profNewHint: 'Die aktuellen Eingaben werden unter diesem Namen gespeichert.',
+      profDirty: function (n) { return 'Änderungen an „' + n + '“ sind noch nicht gespeichert.'; }, profDirtyDot: 'geändert',
+      profGuard: 'Die aktuellen Eingaben sind nicht gespeichert und gehen beim Wechsel verloren.', profSwitch: 'Trotzdem wechseln',
+      profDelete: function (n) { return '„' + n + '“ löschen'; }, profDeleteConfirm: 'Wirklich löschen?',
+      profErrEmpty: 'Gib einen Namen ein.', profErrDup: 'Den Namen gibt es schon.',
+      profSaved: function (n) { return '„' + n + '“ gespeichert.'; }, profDeleted: function (n) { return '„' + n + '“ gelöscht.'; },
+      profExport: 'Als Datei sichern', profImport: 'Aus Datei laden', profFileName: 'setup-rechner-profile.json',
+      profExported: 'Sicherung gespeichert.', profExportWait: 'Sicherung wird vorbereitet …',
+      profExportText: 'Speichern als Datei geht hier nicht. Kopiere den Text und heb ihn als Datei mit der Endung .json auf.', profFallbackAria: 'Sicherung der Profile als Text',
+      profImported: function (n, skip) { return (n === 1 ? '1 Profil geladen.' : n + ' Profile geladen.') + (skip ? ' ' + skip + ' passten nicht mehr hinein, 10 ist das Maximum.' : ''); },
+      profImportBad: 'Das ist keine Sicherung dieses Rechners.',
+      sharedText: 'Du siehst ein geteiltes Setup aus einem Link.', sharedKeep: ' Deine eigenen Eingaben und Profile sind unverändert.', sharedBack: 'Zurück zu meinen Eingaben',
+      shareBtn: 'Link teilen', shareCopied: 'Link kopiert', shareFallback: 'Link markiert, jetzt kopieren', printBtn: 'Druckansicht',
+      cmpTitle: 'Vergleich', cmpSub: 'Stell ein zweites Setup daneben. Abweichungen sind farbig, AL steht für Assist Level.', cmpLabel: 'Vergleichen mit', cmpOff: 'Kein Vergleich',
+      cmpFocus: function (f) { return 'Ausrichtung ' + f; }, cmpProf: function (n) { return 'Profil ' + n; }, cmpSaved: function (n) { return 'Profil ' + n + ', gespeicherter Stand'; },
+      cmpCurrent: 'Aktuell', cmpNone: 'Speichere ein zweites Profil, dann kannst du es hier danebenstellen.',
+      sheetTitle: function (m) { return 'Setup für Avinox ' + m; }, sheetBack: 'Zurück', sheetPrint: 'Drucken',
+      sheetHint: 'Zum Drucken oder als PDF sichern. Unterwegs reicht auch ein Bildschirmfoto.', sheetAdj: 'von Hand angepasst', sheetTick: 'eingetragen',
+      sheetStart: 'Die Werte sind Startpunkte. Stimm sie nach Fahrgefühl nach.',
+      storeNote: ' Eingaben und Profile liegen nur in deinem Browser. Wer die Browserdaten löscht, löscht auch sie.',
+      adv: 'Erweitert', advHint: 'Abhaken beim Übertragen, Werte von Hand nachstellen, Steigung statt W/kg',
+      adjOpen: function (m) { return m + ' anpassen'; }, adjTag: 'angepasst',
+      adjAl: 'Assist Level', adjAlLo: 'Assist Level von', adjAlHi: 'Assist Level bis', adjW: 'max. Watt', adjNm: 'max. Nm',
+      adjCalc: function (v) { return 'berechnet: ' + v; }, adjReset: 'Zurücksetzen', less: 'verringern', more: 'erhöhen',
+      adjHint: 'Gespeichert wird die Abweichung vom berechneten Wert. Sie bleibt erhalten, wenn du deine Eingaben änderst.',
+      nOver: function (n) { return 'Von Hand stärker eingestellt als ' + n + '.'; },
+      shareAdj: ' (angepasst)',
       shareHead: function (m, kg, cad, pow) { return 'Avinox ' + m + ' Setup (' + kg + ' kg gesamt, ' + cad + ' U/min, ' + pow + ' W Eigenleistung)'; },
       shareLine: function (n, al, w, nm) { return n + ': Assist Level ' + al + ' · max. ' + w + ' W · max. ' + nm + ' Nm'; }
     },
@@ -579,10 +912,13 @@ var AvinoxCalc = (function () {
       locale: 'en-US',
       title: 'Setup Calculator for Avinox',
       lede: 'From weight, rider power and cadence it suggests assist level, max. watts and max. Nm for every mode.',
-      reset: 'Reset', resetConfirm: 'Really clear all inputs?',
+      reset: 'Reset', resetConfirm: 'Clear inputs? Profiles stay.',
       emptyTitle: 'No setup yet',
-      emptyText: 'Choose your motor and enter weight, rider power and cadence. The settings for every mode will then appear here.',
+      emptyText: 'Choose your motor (and the battery for the M2S) and enter weight, rider power and cadence. The settings for every mode will then appear here.',
       motorChoose: 'Choose your motor.',
+      battery: 'Battery', batteryChoose: 'Choose your battery. On the M2S it sets the peak power in Boost: 1,500 W with FP700 or RS800, 1,300 W with FS800 or FS600.',
+      batteryHint: function (bw) { return 'With this battery the M2S delivers up to ' + bw + ' W in Boost.'; },
+      motorHintOpen: function (nm, w, bnm) { return 'Up to ' + nm + ' Nm and ' + w + ' W in the modes, ' + bnm + ' Nm in Boost. Power in Boost depends on the battery.'; },
       motor: 'Motor', bike: 'Bike', rider: 'Rider',
       weightHint: 'Bike with everything mounted on it. Rider ready to ride with clothing, helmet and backpack.',
       total: 'Total weight',
@@ -604,7 +940,7 @@ var AvinoxCalc = (function () {
       alHint: 'Measured by the guide\'s author in test rides with the M1, not confirmed by Avinox. Close to 25 km/h and under light load the assistance is lower.',
       foot1: 'The calculation and the assist level figures come from the setup guide by Bernd Hemmersbach (preliminary version of 11 May 2026) and his “Generelles Setup” sheets for M1, M2 and M2S. Published with the author\'s permission.',
       foot2: 'Not a tool by Avinox or DJI. The values are starting points. Fine-tune them by feel.',
-      foot2Pages: 'The values are starting points. Fine-tune them by feel. Not a tool by Avinox or DJI. Avinox and DJI are trademarks of their respective owners. Free software under the MIT license, without warranty. The page loads nothing from elsewhere and stores your inputs only in your browser.',
+      foot2Pages: 'The values are starting points. Fine-tune them by feel. Not a tool by Avinox or DJI. Avinox and DJI are trademarks of their respective owners. Free software under the MIT license, without warranty. The page loads nothing from elsewhere.',
       errWeight: 'Enter 10 to 45 kg for the bike and 40 to 180 kg for the rider.',
       errPower: 'Enter a value between 50 and 500 W.',
       errCadence: 'Enter a value between 40 and 120 rpm.',
@@ -640,6 +976,47 @@ var AvinoxCalc = (function () {
       tipsFour: ['Set the mode order in the app to ECO, AUTO, TRAIL, TURBO. Then you shift from weak to strong.',
         'With real-time tuning you change the assist level from the handlebar while riding.'],
       level: 'Level',
+      lookDark: 'Dark', lookLight: 'Light', lookAria: 'Theme',
+      unitGrade: 'Gradient', unitAria: 'Display', thGrade: 'Gradient',
+      speedAt: function (v) { return 'at ' + v + ' km/h'; }, speedLess: 'Lower speed', speedMore: 'Raise speed',
+      gradeTxt: function (p) { return 'approx. ' + p + '%'; }, gradeMax: '> 40%', gradeMin: '< 1%',
+      gradeShort: function (kg, v) { return 'The gradient is an estimate: worked out with ' + kg + ' kg total weight at ' + v + ' km/h, on firm ground and in a suitable gear.'; },
+      gradeNote: function (v) { return 'How the gradient is estimated: from rider power plus motor power and total weight at ' + v + ' km/h, with a rolling resistance of 0.015, a drag area of 0.6 m² and 4% drivetrain loss. This holds for firm ground and assumes a suitable gear. On loose ground it is less.'; },
+      chkAria: function (m) { return 'Tick ' + m + ' as entered'; },
+      progress: function (n, t) { return n + ' of ' + t + ' steps entered in the Avinox Ride app.'; },
+      progressHint: 'Tick a step once you have entered it. If one of its values changes, the tick disappears. The triangle on the right opens manual adjustment.',
+      clearChecks: 'Clear ticks',
+      profTitle: 'Profiles', profAdd: '+ New profile', profSave: 'Save', profDiscard: 'Discard', cancel: 'Cancel', close: 'Close',
+      profIntro: 'Save your inputs under a name, for example for several riders or bikes.',
+      profWarn: 'Profiles live only in this browser. Clearing the browser data deletes them too. Back them up as a file.',
+      profMax: 'More than 10 profiles are not possible.',
+      profNameAria: 'Profile name', profNamePh: 'Name, for example Franz', profNewHint: 'The current inputs are saved under this name.',
+      profDirty: function (n) { return 'Changes to “' + n + '” are not saved yet.'; }, profDirtyDot: 'changed',
+      profGuard: 'The current inputs are not saved and will be lost when you switch.', profSwitch: 'Switch anyway',
+      profDelete: function (n) { return 'Delete “' + n + '”'; }, profDeleteConfirm: 'Really delete?',
+      profErrEmpty: 'Enter a name.', profErrDup: 'That name already exists.',
+      profSaved: function (n) { return '“' + n + '” saved.'; }, profDeleted: function (n) { return '“' + n + '” deleted.'; },
+      profExport: 'Back up as file', profImport: 'Load from file', profFileName: 'setup-calculator-profiles.json',
+      profExported: 'Backup saved.', profExportWait: 'Preparing backup …',
+      profExportText: 'Saving a file is not possible here. Copy the text and keep it as a file ending in .json.', profFallbackAria: 'Profile backup as text',
+      profImported: function (n, skip) { return (n === 1 ? '1 profile loaded.' : n + ' profiles loaded.') + (skip ? ' ' + skip + ' did not fit, 10 is the maximum.' : ''); },
+      profImportBad: 'This is not a backup from this calculator.',
+      sharedText: 'You are looking at a shared setup from a link.', sharedKeep: ' Your own inputs and profiles are unchanged.', sharedBack: 'Back to my inputs',
+      shareBtn: 'Share link', shareCopied: 'Link copied', shareFallback: 'Link selected, copy it now', printBtn: 'Print view',
+      cmpTitle: 'Comparison', cmpSub: 'Put a second setup next to it. Differences are coloured, AL stands for assist level.', cmpLabel: 'Compare with', cmpOff: 'No comparison',
+      cmpFocus: function (f) { return 'Focus ' + f; }, cmpProf: function (n) { return 'Profile ' + n; }, cmpSaved: function (n) { return 'Profile ' + n + ', saved state'; },
+      cmpCurrent: 'Current', cmpNone: 'Save a second profile, then you can put it next to this one.',
+      sheetTitle: function (m) { return 'Setup for Avinox ' + m; }, sheetBack: 'Back', sheetPrint: 'Print',
+      sheetHint: 'Print it or save it as a PDF. On the trail a screenshot will do.', sheetAdj: 'adjusted by hand', sheetTick: 'entered',
+      sheetStart: 'The values are starting points. Fine-tune them by feel.',
+      storeNote: ' Inputs and profiles live only in your browser. Clearing the browser data deletes them too.',
+      adv: 'Advanced', advHint: 'Tick off steps, adjust values by hand, gradient instead of W/kg',
+      adjOpen: function (m) { return 'Adjust ' + m; }, adjTag: 'adjusted',
+      adjAl: 'Assist level', adjAlLo: 'Assist level from', adjAlHi: 'Assist level to', adjW: 'max. watts', adjNm: 'max. Nm',
+      adjCalc: function (v) { return 'calculated: ' + v; }, adjReset: 'Reset', less: 'decrease', more: 'increase',
+      adjHint: 'The deviation from the calculated value is stored. It stays when you change your inputs.',
+      nOver: function (n) { return 'Manually set stronger than ' + n + '.'; },
+      shareAdj: ' (adjusted)',
       shareHead: function (m, kg, cad, pow) { return 'Avinox ' + m + ' setup (' + kg + ' kg total, ' + cad + ' rpm, ' + pow + ' W rider power)'; },
       shareLine: function (n, al, w, nm) { return n + ': assist level ' + al + ' · max. ' + w + ' W · max. ' + nm + ' Nm'; }
     }
@@ -660,18 +1037,63 @@ var AvinoxCalc = (function () {
   }
   var w = function (x) { return nf.format(Math.round(x)); };
   var kgf = function (x) { return nf2.format(x); };
-  var one = function (x) { return lang === 'de' ? String(x).replace('.', ',') : String(x); };
+  // Auf zwei Stellen runden, damit aus 23,4 + 87,3 nicht 110,69999999999999 wird
+  var one = function (x) { var r = String(Math.round(x * 100) / 100); return lang === 'de' ? r.replace('.', ',') : r; };
   var last = null, lastInp = null;
+
+  // Ansicht: Design, Einheit der letzten Spalte, Tempo für die Steigung
+  var view = { look: 'dark', unit: 'wkg', speed: 15, adv: false };
+  try {
+    var sv = JSON.parse(localStorage.getItem(VIEWKEY) || 'null');
+    if (sv) {
+      if (sv.look === 'light' || sv.look === 'dark') view.look = sv.look;
+      if (sv.unit === 'grade' || sv.unit === 'wkg') view.unit = sv.unit;
+      if (sv.speed >= 5 && sv.speed <= 24) view.speed = Math.round(sv.speed);
+      view.adv = sv.adv === true;
+    }
+  } catch (e) {}
+  // Ohne "Erweitert" bleibt es beim Standardrechner: W/kg, keine Haken, keine Anpassungen von Hand
+  function unit() { return view.adv ? view.unit : 'wkg'; }
+  function saveView() { try { localStorage.setItem(VIEWKEY, JSON.stringify(view)); } catch (e) {} }
+  function applyView() {
+    if (view.look === 'light') document.documentElement.setAttribute('data-look', 'light');
+    else document.documentElement.removeAttribute('data-look');
+    $('look-dark').setAttribute('aria-pressed', String(view.look === 'dark'));
+    $('look-light').setAttribute('aria-pressed', String(view.look === 'light'));
+    $('unit-wkg').setAttribute('aria-pressed', String(view.unit === 'wkg'));
+    $('unit-grade').setAttribute('aria-pressed', String(view.unit === 'grade'));
+    $('adv').setAttribute('aria-checked', String(view.adv));
+    $('advHint').hidden = view.adv;
+    $('unitGroup').hidden = !view.adv;
+    $('progressBox').hidden = !view.adv;
+    $('progressHint').hidden = !view.adv;
+    $('speedBox').hidden = unit() !== 'grade';
+    $('speedText').textContent = T.speedAt(view.speed);
+    $('speed-less').disabled = view.speed <= 5;
+    $('speed-more').disabled = view.speed >= 24;
+  }
+
+  // Anpassungen von Hand und abgehakte Stufen, getrennt für "4 Modi" und "Alle Modi"
+  function fresh() { return { adjust: { four: {}, all: {} }, checks: { four: {}, all: {} } }; }
+  var extra = fresh(), openMode = null, refocus = null;
 
   // Feste Texte der Seite in der gewählten Sprache setzen
   function applyStatic() {
     $('h1').textContent = T.title;
     document.title = T.title;
-    $('foot2').textContent = PAGES ? T.foot2Pages : T.foot2;
+    $('foot2').textContent = (PAGES ? T.foot2Pages : T.foot2) + T.storeNote;
     Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) { el.textContent = T[el.getAttribute('data-i18n')]; });
     $('copy').textContent = T.copyBtn;
+    $('share').textContent = T.shareBtn;
+    $('profName').setAttribute('aria-label', T.profNameAria);
+    $('profName').setAttribute('placeholder', T.profNamePh);
+    $('profFallback').setAttribute('aria-label', T.profFallbackAria);
     $('reset').textContent = T.reset;
     $('copyfallback').setAttribute('aria-label', T.copyAria);
+    $('lookGroup').setAttribute('aria-label', T.lookAria);
+    $('unitGroup').setAttribute('aria-label', T.unitAria);
+    $('speed-less').setAttribute('aria-label', T.speedLess);
+    $('speed-more').setAttribute('aria-label', T.speedMore);
     var ring = $('ring'), gear = $('gear'), rv = ring.value || '34', gv = gear.value || '';
     ring.setAttribute('aria-label', T.ringAria); gear.setAttribute('aria-label', T.gearAria);
     ring.innerHTML = [34, 36].map(function (n) { return '<option value="' + n + '">' + T.ring(n) + '</option>'; }).join('');
@@ -682,46 +1104,123 @@ var AvinoxCalc = (function () {
       t += '<tr><td>' + T.level + ' ' + i + '</td><td>' + T.pct(C.AL[i]) + '</td><td>' + (i + 8 <= 15 ? T.level + ' ' + (i + 8) : '') + '</td><td>' + (i + 8 <= 15 ? T.pct(C.AL[i + 8]) : '') + '</td></tr>';
     }
     $('altable').innerHTML = t;
+    applyView();
   }
 
   function radio(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : null; }
   function setRadio(name, v) { var el = $(name + '-' + v); if (el) el.checked = true; }
 
   var FIELDS = ['bike', 'rider', 'power', 'cadence'];
+  var RANGE = { bike: [10, 45], rider: [40, 180], power: [50, 500], cadence: [40, 120] };
+
+  // ---------------------------------------------------------------- Stand der Eingaben
+  // Bringt gespeicherte, geladene oder per Link erhaltene Werte in eine feste, geprüfte Form
+  var ADJF = ['al', 'alLo', 'alHi', 'watt', 'nm'];
+  function numStr(v) { var t = v == null ? '' : String(v).trim().replace(',', '.'), n = parseFloat(t); return t !== '' && isFinite(n) ? String(n) : ''; }
+  function cleanMap(o, leaf) {
+    var out = { four: {}, all: {} };
+    if (!o || typeof o !== 'object') return out;
+    ['four', 'all'].forEach(function (sc) {
+      var src = o[sc];
+      if (!src || typeof src !== 'object') return;
+      Object.keys(src).forEach(function (name) { if (!has(COLORS, name)) return; var v = leaf(src[name]); if (v != null) out[sc][name] = v; });
+    });
+    return out;
+  }
+  function cleanAdj(a) {
+    if (!a || typeof a !== 'object') return null;
+    var o = {}, any = false;
+    ADJF.forEach(function (f) { var n = Math.round(Number(a[f])); if (n && isFinite(n) && Math.abs(n) <= 2000) { o[f] = n; any = true; } });
+    return any ? o : null;
+  }
+  function clean(d) {
+    d = d && typeof d === 'object' ? d : {};
+    return { motor: has(C.MOTORS, d.motor) ? d.motor : null, battery: has(BATT, d.battery) ? d.battery : null,
+      scope: d.scope === 'all' ? 'all' : 'four', profile: has(C.PROFILES, d.profile) ? d.profile : 'allround',
+      bike: numStr(d.bike), rider: numStr(d.rider), power: numStr(d.power), cadence: numStr(d.cadence),
+      adjust: cleanMap(d.adjust, cleanAdj), checks: cleanMap(d.checks, function (v) { return typeof v === 'string' && v.length < 40 ? v : null; }) };
+  }
+  function snapshot() {
+    var d = { motor: radio('motor'), battery: radio('battery'), scope: radio('scope'), profile: radio('profile'), adjust: extra.adjust, checks: extra.checks };
+    FIELDS.forEach(function (k) { d[k] = $(k).value; });
+    return clean(JSON.parse(JSON.stringify(d)));
+  }
+  function applySnapshot(d) {
+    d = clean(d);
+    FIELDS.forEach(function (k) { $(k).value = d[k]; });
+    ['motor', 'battery'].forEach(function (n) {
+      Array.prototype.forEach.call(document.querySelectorAll('input[name="' + n + '"]'), function (el) { el.checked = el.value === d[n]; });
+    });
+    setRadio('scope', d.scope); setRadio('profile', d.profile);
+    extra = { adjust: d.adjust, checks: d.checks }; openMode = null;
+    $('gear').value = ''; $('copyfallback').hidden = true;
+  }
+  function hasContent(d) { return !!d.motor || FIELDS.some(function (k) { return d[k] !== ''; }); }
+  // Vollständige, gültige Eingaben für die Rechnung, sonst null
+  function toInput(d) {
+    var i = { motor: d.motor, battery: d.battery, scope: d.scope, profile: d.profile }, ok = !!d.motor;
+    FIELDS.forEach(function (k) { var v = parseFloat(d[k]); i[k] = v; if (!(v >= RANGE[k][0] && v <= RANGE[k][1])) ok = false; });
+    if (ok && C.MOTORS[d.motor].batteries && !d.battery) ok = false;
+    return ok ? i : null;
+  }
+
+  // ---------------------------------------------------------------- Profile
+  var profiles = [], activeId = null, cur = null;
+  var ui = { naming: false, guard: null, delArmed: false, delTimer: null, msg: '', fallback: '' };
+  var stash = null, sharedNote = false, cmp = '';
+  function byId(id) { return profiles.filter(function (p) { return p.id === id; })[0] || null; }
+  function active() { return activeId ? byId(activeId) : null; }
+  function canon(o) { if (!o || typeof o !== 'object') return o; var out = {}; Object.keys(o).sort().forEach(function (k) { out[k] = canon(o[k]); }); return out; }
+  // Haken zählen nicht als Änderung: sie halten nur fest, was schon in der App steht
+  function core(d) { return JSON.stringify([d.motor, d.battery, d.scope, d.profile, d.bike, d.rider, d.power, d.cadence, canon(d.adjust)]); }
+  function isDirty() { var a = active(); return !!a && !!cur && core(cur) !== core(a.data); }
+  function cleanName(n) { return String(n == null ? '' : n).replace(/\s+/g, ' ').trim().slice(0, MAXNAME); }
+  function newId() { return 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
+
   function load() {
+    try { var d = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d) applySnapshot(d); } catch (e) {}
     try {
-      var s = JSON.parse(localStorage.getItem(KEY) || 'null');
-      if (!s) return;
-      FIELDS.forEach(function (k) { if (s[k] != null && s[k] === s[k]) $(k).value = s[k]; });
-      ['motor', 'scope', 'profile'].forEach(function (k) { if (s[k]) setRadio(k, s[k]); });
+      var p = JSON.parse(localStorage.getItem(PROFKEY) || 'null');
+      if (p && Array.isArray(p.list)) {
+        p.list.slice(0, MAXPROF).forEach(function (x) {
+          var name = x ? cleanName(x.name) : '', id = x && /^[a-z0-9]{2,24}$/i.test(String(x.id)) ? String(x.id) : newId();
+          if (name && !byId(id)) profiles.push({ id: id, name: name, data: clean(x.data) });
+        });
+        activeId = byId(p.active) ? p.active : null;
+      }
     } catch (e) {}
   }
+  function saveProfiles() { try { localStorage.setItem(PROFKEY, JSON.stringify({ list: profiles, active: activeId })); } catch (e) {} }
   // Speichert auch unvollständige Eingaben, damit nichts verloren geht
   function save() {
-    var s = { motor: radio('motor'), scope: radio('scope'), profile: radio('profile') };
-    FIELDS.forEach(function (k) { s[k] = $(k).value; });
-    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    var d = snapshot(), a = active();
+    try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {}
+    if (a) a.data.checks = d.checks;
+    saveProfiles();
   }
 
   // Liest das Formular. Ein leeres Feld ist kein Fehler, nur ein ausgefülltes mit unpassendem Wert.
   function read() {
-    var raw = { motor: radio('motor'), scope: radio('scope'), profile: radio('profile') }, filled = {}, ok = true;
+    var raw = { motor: radio('motor'), battery: radio('battery'), scope: radio('scope'), profile: radio('profile') }, filled = {}, ok = true;
     FIELDS.forEach(function (k) { var v = $(k).value.trim(); filled[k] = v !== ''; raw[k] = parseFloat(v); });
-    function inRange(k, lo, hi) { return raw[k] >= lo && raw[k] <= hi; }
+    function inRange(k) { return raw[k] >= RANGE[k][0] && raw[k] <= RANGE[k][1]; }
     function check(id, good, msg) { var e = $(id); e.hidden = good; e.textContent = good ? '' : msg; if (!good) ok = false; }
-    check('err-weight', (!filled.bike || inRange('bike', 10, 45)) && (!filled.rider || inRange('rider', 40, 180)), T.errWeight);
-    check('err-power', !filled.power || inRange('power', 50, 500), T.errPower);
-    check('err-cadence', !filled.cadence || inRange('cadence', 40, 120), T.errCadence);
-    raw.complete = ok && !!raw.motor && FIELDS.every(function (k) { return filled[k]; });
+    check('err-weight', (!filled.bike || inRange('bike')) && (!filled.rider || inRange('rider')), T.errWeight);
+    check('err-power', !filled.power || inRange('power'), T.errPower);
+    check('err-cadence', !filled.cadence || inRange('cadence'), T.errCadence);
+    raw.needBattery = !!raw.motor && !!C.MOTORS[raw.motor].batteries;
+    raw.complete = ok && !!raw.motor && (!raw.needBattery || !!raw.battery) && FIELDS.every(function (k) { return filled[k]; });
     raw.hasWeight = filled.bike && filled.rider && raw.bike === raw.bike && raw.rider === raw.rider;
     return raw;
   }
 
   // Hinweise neben den Eingaben, auch wenn noch nicht alles ausgefüllt ist
   function hints(inp) {
-    var M = inp.motor ? C.MOTORS[inp.motor] : null;
+    var M = inp.motor ? C.motorFor(inp.motor, inp.battery) : null, open = inp.needBattery && !inp.battery;
+    $('batteryField').hidden = !inp.needBattery;
+    $('batteryHint').textContent = !inp.needBattery ? '' : open ? T.batteryChoose : T.batteryHint(w(M.boostW));
     $('total').textContent = inp.hasWeight ? one(inp.bike + inp.rider) + ' kg' : '–';
-    $('motorHint').textContent = M ? T.motorHint(M.nm, w(M.watt), M.boostNm, w(M.boostW)) : T.motorChoose;
+    $('motorHint').textContent = !M ? T.motorChoose : open ? T.motorHintOpen(M.nm, w(M.watt), M.boostNm) : T.motorHint(M.nm, w(M.watt), M.boostNm, w(M.boostW));
     if (inp.scope === 'all') {
       var names = M ? C.LADDERS[inp.motor].map(function (d) { return d.name; }) : null;
       $('scopeHint').textContent = names ? T.scopeAllHint(names.length, names.join(', ')) : T.motorChoose;
@@ -737,10 +1236,22 @@ var AvinoxCalc = (function () {
   function powText(m) {
     return (Math.round(m.flat) === Math.round(m.climb) ? w(m.climb) : w(m.flat) + ' – ' + w(m.climb)) + ' W';
   }
+  // Kennung der eingestellten Werte: ein Haken gilt nur, solange sie sich nicht ändern
+  function sig(m) { return m.alLo + '-' + m.alHi + '/' + m.watt + '/' + m.nm; }
 
-  function notesFor(m, inp) {
+  // Letzte Spalte: W/kg oder geschätzte Steigung bei gewähltem Tempo
+  function lastCol(motorW, wkg, inp, kg) {
+    if (unit() !== 'grade') return kgf(wkg) + ' W/kg';
+    var g = C.grade(inp.power + motorW, kg, view.speed);
+    if (!isFinite(g) || g > 40) return T.gradeMax;
+    if (g < 1) return T.gradeMin;
+    return T.gradeTxt(Math.round(g));
+  }
+
+  function notesFor(m, inp, next) {
     var out = [], eps = 0.5, cad = inp.cadence;
     var reach = Math.min(m.watt, m.alWatt);
+    if (next && m.watt > next.watt) out.push({ w: true, t: T.nOver(next.name) });
     if (m.nmWatt < reach - eps) out.push({ w: true, t: T.nNm(cad, w(m.nmWatt), w(m.watt), m.rpmForMax) });
     if (m.alWatt < m.watt - eps) out.push({ t: T.nAl(w(inp.power), w(m.alWatt), w(m.watt)) });
     if (m.band) {
@@ -748,48 +1259,94 @@ var AvinoxCalc = (function () {
       else out.push({ t: T.nBand(one(m.band[0]), one(m.band[1])) });
     }
     if (m.flags.nmMin || m.flags.wattMin) out.push({ t: T.nMin });
-    if (m.flags.nmSpread) out.push({ t: T.nSpread });
+    if (m.flags.nmSpread && !m.delta.nm) out.push({ t: T.nSpread });
     return out;
   }
 
+  // Ein Regler im Bereich "Anpassen": Minus, Wert, Plus und darunter der berechnete Wert
+  function stepper(m, field, label, value, calc, step, min, max, text, calcText) {
+    function btn(d, sym, word) {
+      var ok = d < 0 ? value + d >= min : value + d <= max;
+      return '<button type="button" class="sb" data-m="' + m.name + '" data-f="' + field + '" data-d="' + d + '"' + (ok ? '' : ' disabled') +
+        ' aria-label="' + label + ' ' + word + '">' + sym + '</button>';
+    }
+    return '<div class="stp"><span class="label">' + label + '</span><div class="ctl">' + btn(-step, '−', T.less) +
+      '<b' + (value !== calc ? ' class="adj"' : '') + '>' + text + '</b>' + btn(step, '+', T.more) + '</div>' +
+      '<small>' + (value !== calc ? T.adjCalc(calcText) : '&nbsp;') + '</small></div>';
+  }
+  function adjustPanel(m) {
+    var L2 = m.limits, h = '<div class="adjust">';
+    if (m.range) {
+      h += stepper(m, 'alLo', T.adjAlLo, m.alLo, m.calc.alLo, 1, L2.al[0], m.alHi, String(m.alLo), String(m.calc.alLo));
+      h += stepper(m, 'alHi', T.adjAlHi, m.alHi, m.calc.alHi, 1, m.alLo, L2.al[1], String(m.alHi), String(m.calc.alHi));
+    } else {
+      h += stepper(m, 'al', T.adjAl, m.alHi, m.calc.alHi, 1, L2.al[0], L2.al[1], String(m.alHi), String(m.calc.alHi));
+    }
+    h += stepper(m, 'watt', T.adjW, m.watt, m.calc.watt, 50, L2.w[0], L2.w[1], w(m.watt), w(m.calc.watt));
+    h += stepper(m, 'nm', T.adjNm, m.nm, m.calc.nm, 5, L2.nm[0], L2.nm[1], String(m.nm), String(m.calc.nm));
+    h += '<div class="stp end"><button type="button" class="link" data-reset="' + m.name + '"' + (m.adjusted ? '' : ' disabled') + '>' + T.adjReset + '</button></div>';
+    return h + '<p class="adjhint">' + T.adjHint + '</p></div>';
+  }
+
   function render(inp) {
-    var r = C.compute(inp), M = r.motor, scale = M.boostW;
+    var adv = view.adv;
+    inp.adjust = adv ? extra.adjust[inp.scope] : {};
+    if (!adv) openMode = null;
+    var r = C.compute(inp), M = r.motor, scale = M.boostW, checks = extra.checks[inp.scope], done = 0;
     last = r; lastInp = inp;
     $('summary').textContent = T.summary(M.label, one(r.kg), inp.cadence, w(inp.power));
+    if (openMode && !r.modes.some(function (m) { return m.name === openMode; })) openMode = null;
 
-    var h = '<div class="row head"><span class="label">' + T.thMode + '</span><span class="label">' + T.thAL + '</span><span class="label">' + T.thW + '</span><span class="label">' + T.thNm + '</span><span class="label meterhead">' + T.thMotorAt(inp.cadence) + '</span></div>';
+    var h = '<div class="row head">' + (adv ? '<span></span>' : '') + '<span class="label">' + T.thMode + '</span><span class="label">' + T.thAL + '</span><span class="label">' + T.thW + '</span><span class="label">' + T.thNm + '</span><span class="label meterhead">' + T.thMotorAt(inp.cadence) + '</span>' + (adv ? '<span></span>' : '') + '</div>';
     var zone = null;
     r.modes.forEach(function (m) {
+      var isDone = adv && checks[m.name] === sig(m), isOpen = openMode === m.name, d = m.delta;
+      if (isDone) done++;
       if (r.ladder && m.zone !== zone) { zone = m.zone; h += '<div class="row zone"><span class="label" style="grid-column:1/-1">' + T.zones[zone] + '</span></div>'; }
-      h += '<div class="row" style="--m:' + COLORS[m.name] + '">' +
-        '<span class="mode"><i class="sw"></i><b>' + m.name + '</b>' + (r.ladder && m.custom ? '<span class="tag">' + T.tagNew + '</span>' : '') + '</span>' +
-        '<span class="val">' + alText(m) + '<small>' + pctText(m) + '</small></span>' +
-        '<span class="val">' + w(m.watt) + '</span>' +
-        '<span class="val">' + m.nm + '</span>' +
+      h += '<div class="row' + (isDone ? ' done' : '') + (isOpen ? ' open' : '') + '" style="--m:' + COLORS[m.name] + '">' +
+        (adv ? '<input type="checkbox" class="chk" data-m="' + m.name + '"' + (isDone ? ' checked' : '') + ' aria-label="' + T.chkAria(m.name) + '">' : '') +
+        '<span class="mode"><i class="sw"></i><b>' + m.name + '</b>' + (r.ladder && m.custom ? '<span class="tag">' + T.tagNew + '</span>' : '') +
+        (m.adjusted ? '<span class="tag adj">' + T.adjTag + '</span>' : '') + '</span>' +
+        '<span class="val' + (d.alLo || d.alHi ? ' adj' : '') + '">' + alText(m) + '<small>' + pctText(m) + '</small></span>' +
+        '<span class="val' + (d.watt ? ' adj' : '') + '">' + w(m.watt) + '</span>' +
+        '<span class="val' + (d.nm ? ' adj' : '') + '">' + m.nm + '</span>' +
         '<span class="meter"><span class="track"><i class="climb" style="width:' + (m.climb / scale * 100).toFixed(1) + '%"></i><i style="width:' + (m.flat / scale * 100).toFixed(1) + '%"></i></span>' +
-        '<span><b>' + powText(m) + '</b> · ' + kgf(m.wkg) + ' W/kg</span></span></div>';
+        '<span><b>' + powText(m) + '</b> · ' + lastCol(m.climb, m.wkg, inp, r.kg) + '</span></span>' +
+        (adv ? '<button type="button" class="tgl" data-m="' + m.name + '" aria-expanded="' + isOpen + '" aria-label="' + T.adjOpen(m.name) + '"><i class="tri"></i></button>' : '') + '</div>';
+      if (isOpen) h += adjustPanel(m);
     });
     var b = r.boost;
-    h += '<div class="row" style="--m:var(--boost)">' +
+    h += '<div class="row" style="--m:var(--boost)">' + (adv ? '<span></span>' : '') +
       '<span class="mode"><i class="sw"></i><b>BOOST</b><span class="tag">' + T.tagFixed + '</span></span>' +
       '<span class="val">15<small>' + T.pct(b.pct) + '</small></span><span class="val">' + w(b.watt) + '</span><span class="val">' + b.nm + '</span>' +
       '<span class="meter"><span class="track"><i style="width:' + (b.climb / scale * 100).toFixed(1) + '%"></i></span>' +
-      '<span><b>' + w(b.climb) + ' W</b> · ' + kgf(b.wkg) + ' W/kg</span></span></div>';
+      '<span><b>' + w(b.climb) + ' W</b> · ' + lastCol(b.climb, b.wkg, inp, r.kg) + '</span></span>' + (adv ? '<span></span>' : '') + '</div>';
     $('list').innerHTML = h;
+    $('list').classList.toggle('basic', !adv);
+    if (refocus) { var el = $('list').querySelector(refocus); if (el && !el.disabled) el.focus(); refocus = null; }
     $('legendLine').textContent = T.legend(inp.cadence, w(inp.power), w(scale));
+    $('gradeNote').hidden = unit() !== 'grade';
+    $('gradeShort').hidden = unit() !== 'grade';
+    $('gradeShort').textContent = T.gradeShort(one(r.kg), view.speed);
+    $('gradeNote').textContent = T.gradeNote(view.speed);
+    $('progressText').textContent = T.progress(done, r.modes.length);
+    $('clearChecks').hidden = done === 0;
 
     var c = '';
-    r.modes.concat([b]).forEach(function (m) {
+    r.modes.concat([b]).forEach(function (m, idx) {
       var boost = m.name === 'BOOST', two = !boost && m.alLo !== m.alHi;
       c += '<article class="card"' + (boost ? '' : ' style="--m:' + COLORS[m.name] + '"') + '>' +
         '<div class="band' + (boost ? ' boost' : '') + '"><b>' + m.name + '</b><span>' +
-        T.alLabel + ' ' + (boost ? '15' : alText(m)) + ' · ' + w(m.watt) + ' W · ' + m.nm + ' Nm</span></div>' +
-        '<table><thead><tr><th>' + T.thRpm + '</th>' + (two ? '<th>' + T.thFlat + '</th><th>' + T.thClimb + '</th>' : '<th>' + T.thMotor + '</th>') + '<th>W/kg</th></tr></thead><tbody>';
+        T.alLabel + ' ' + (boost ? '15' : alText(m)) + ' · ' + w(m.watt) + ' W · ' + m.nm + ' Nm' + (!boost && m.adjusted ? ' · ' + T.adjTag : '') + '</span></div>' +
+        '<table><thead><tr><th>' + T.thRpm + '</th>' + (two ? '<th>' + T.thFlat + '</th><th>' + T.thClimb + '</th>' : '<th>' + T.thMotor + '</th>') +
+        '<th>' + (unit() === 'grade' ? T.thGrade : 'W/kg') + '</th></tr></thead><tbody>';
       m.rows.forEach(function (x) {
-        c += '<tr' + (x.pref ? ' class="pref"' : '') + '><td>' + x.rpm + '</td>' + (two ? '<td>' + w(x.flat) + '</td>' : '') + '<td>' + w(x.climb) + '</td><td>' + kgf(x.wkg) + '</td></tr>';
+        c += '<tr' + (x.pref ? ' class="pref"' : '') + '><td>' + x.rpm + '</td>' + (two ? '<td>' + w(x.flat) + '</td>' : '') + '<td>' + w(x.climb) + '</td><td>' +
+          (unit() === 'grade' ? lastCol(x.climb, x.wkg, inp, r.kg) : kgf(x.wkg)) + '</td></tr>';
       });
       c += '</tbody></table><div class="notes">';
-      var ns = boost ? [{ t: T.nBoost(w(b.watt), b.rpmForMax) }] : notesFor(m, inp);
+      var next = idx + 1 < r.modes.length ? r.modes[idx + 1] : null;
+      var ns = boost ? [{ t: T.nBoost(w(b.watt), b.rpmForMax) }] : notesFor(m, inp, next);
       if (!ns.length) ns = [{ t: T.nFull }];
       ns.forEach(function (n) { c += '<p' + (n.w ? ' class="w"' : '') + '>' + n.t + '</p>'; });
       c += '</div></article>';
@@ -801,24 +1358,177 @@ var AvinoxCalc = (function () {
     if (r.ladder) rules.push(T.rule5(names.slice(0, 2).join(', ')));
     $('rules').innerHTML = rules.map(function (t) { return '<li>' + t + '</li>'; }).join('');
     $('tips').innerHTML = (r.ladder ? T.tipsLadder : T.tipsFour).map(function (t) { return '<li>' + t + '</li>'; }).join('');
+    renderCompare(r, inp);
+    renderSheet(r, inp);
   }
 
   function copyText() {
     if (!last) return '';
     var r = last, i = lastInp, out = [T.shareHead(r.motor.label, one(r.kg), i.cadence, w(i.power))];
-    r.modes.forEach(function (m) { out.push(T.shareLine(m.name, alText(m).replace(/ /g, ''), w(m.watt), m.nm)); });
+    r.modes.forEach(function (m) { out.push(T.shareLine(m.name, alText(m).replace(/ /g, ''), w(m.watt), m.nm) + (m.adjusted ? T.shareAdj : '')); });
     return out.join('\n');
   }
 
+  // ---------------------------------------------------------------- Vergleich
+  function plain(inp) { return { motor: inp.motor, battery: inp.battery, scope: inp.scope, profile: inp.profile, bike: inp.bike, rider: inp.rider, power: inp.power, cadence: inp.cadence }; }
+  function shortLine(r, inp) {
+    return 'Avinox ' + r.motor.label + ' · ' + one(r.kg) + ' kg · ' + inp.cadence + ' ' + T.unitRpm + ' · ' + w(inp.power) + ' W · ' + (r.ladder ? T.scopeAll : T[FOCUS[inp.profile]]);
+  }
+  function cmpCell(m, ref, inp, kg) {
+    if (!m) return '<span class="cval none">–</span>';
+    var boost = m.name === 'BOOST', al = boost ? '15' : alText(m), ral = ref ? (boost ? '15' : alText(ref)) : al;
+    function part(txt, diff) { return '<span' + (diff ? ' class="adj"' : '') + '>' + txt + '</span>'; }
+    return '<span class="cval"><b>' + part('AL ' + al, ral !== al) + ' · ' + part(w(m.watt) + ' W', !!ref && ref.watt !== m.watt) + ' · ' + part(m.nm + ' Nm', !!ref && ref.nm !== m.nm) + '</b>' +
+      '<small>' + powText(m) + ' · ' + lastCol(m.climb, m.wkg, inp, kg) + '</small></span>';
+  }
+  function renderCompare(r, inp) {
+    var box = $('cmpSection'), opts = [], a = active(), dirty = isDirty();
+    box.hidden = !view.adv;
+    if (!view.adv) return;
+    if (inp.scope === 'four') Object.keys(FOCUS).forEach(function (f) { if (f !== inp.profile) opts.push({ v: 'focus:' + f, label: T.cmpFocus(T[FOCUS[f]]), focus: f }); });
+    profiles.forEach(function (p) {
+      var same = p.id === activeId, i = toInput(p.data);
+      if ((same && !dirty) || !i) return;
+      opts.push({ v: 'prof:' + p.id, label: same ? T.cmpSaved(p.name) : T.cmpProf(p.name), inp: i, data: p.data });
+    });
+    var pick = opts.filter(function (o) { return o.v === cmp; })[0] || null;
+    if (!pick) cmp = '';
+    $('cmpSel').innerHTML = '<option value="">' + T.cmpOff + '</option>' + opts.map(function (o) { return '<option value="' + o.v + '">' + esc(o.label) + '</option>'; }).join('');
+    $('cmpSel').value = cmp;
+    $('cmpSel').disabled = !opts.length;
+    $('cmpNone').hidden = !!profiles.length || !!pick;
+    $('cmpTable').hidden = !pick;
+    if (!pick) return;
+    var inpB = pick.focus ? plain(inp) : pick.inp;
+    if (pick.focus) { inpB.profile = pick.focus; inpB.adjust = {}; } else inpB.adjust = pick.data.adjust[inpB.scope];
+    var rB = C.compute(inpB), names = r.modes.map(function (m) { return m.name; });
+    rB.modes.forEach(function (m) { if (names.indexOf(m.name) < 0) names.push(m.name); });
+    function find(res, n) { return res.modes.filter(function (m) { return m.name === n; })[0] || null; }
+    var h = '<div class="row head"><span class="label">' + T.thMode + '</span>' +
+      '<span class="chead"><b>' + esc(a ? a.name + (dirty ? ' (' + T.profDirtyDot + ')' : '') : T.cmpCurrent) + '</b><small>' + shortLine(r, inp) + '</small></span>' +
+      '<span class="chead"><b>' + esc(pick.label) + '</b><small>' + shortLine(rB, inpB) + '</small></span></div>';
+    names.forEach(function (n) {
+      var ma = find(r, n), mb = find(rB, n);
+      h += '<div class="row" style="--m:' + COLORS[n] + '"><span class="mode"><i class="sw"></i><b>' + n + '</b></span>' + cmpCell(ma, null, inp, r.kg) + cmpCell(mb, ma, inpB, rB.kg) + '</div>';
+    });
+    h += '<div class="row" style="--m:var(--boost)"><span class="mode"><i class="sw"></i><b>BOOST</b></span>' + cmpCell(r.boost, null, inp, r.kg) + cmpCell(rB.boost, r.boost, inpB, rB.kg) + '</div>';
+    $('cmpTable').innerHTML = h;
+  }
+
+  // ---------------------------------------------------------------- Druckansicht
+  function renderSheet(r, inp) {
+    var a = active(), M = r.motor, grade = unit() === 'grade', any = false, zone = null;
+    var facts = [[T.total, one(r.kg) + ' kg (' + T.bike + ' ' + one(inp.bike) + ' + ' + T.rider + ' ' + one(inp.rider) + ')'], [T.power, w(inp.power) + ' W'],
+      [T.cadence, inp.cadence + ' ' + T.unitRpm], [T.scope, r.ladder ? T.scopeAll : T.scopeFour + ' · ' + T[FOCUS[inp.profile]]]];
+    if (M.batteries) facts.push([T.battery, BATT[inp.battery]]);
+    var h = '<header><h1>' + T.sheetTitle(M.label) + '</h1><p class="sub">' + (a ? esc(a.name) + ' · ' : '') + new Date().toLocaleDateString(T.locale) + '</p></header><dl>';
+    facts.forEach(function (f) { h += '<div><dt>' + f[0] + '</dt><dd>' + f[1] + '</dd></div>'; });
+    h += '</dl><table><thead><tr><th><span class="vh">' + T.sheetTick + '</span></th><th>' + T.thMode + '</th><th>' + T.thAL + '</th><th>' + T.thW + '</th><th>' + T.thNm + '</th>' +
+      '<th class="opt">' + T.thMotorAt(inp.cadence) + '</th><th>' + (grade ? T.thGrade : 'W/kg') + '</th></tr></thead><tbody>';
+    r.modes.forEach(function (m) {
+      if (m.adjusted) any = true;
+      if (r.ladder && m.zone !== zone) { zone = m.zone; h += '<tr class="zone"><td colspan="7">' + T.zones[zone] + '</td></tr>'; }
+      h += '<tr><td class="box"><i></i></td><td><i class="sw" style="background:' + COLORS[m.name] + '"></i>' + m.name + (m.adjusted ? ' *' : '') + '</td><td>' + alText(m) + '<small>' + pctText(m) + '</small></td>' +
+        '<td>' + w(m.watt) + '</td><td>' + m.nm + '</td><td class="opt soft">' + powText(m) + '</td><td class="soft">' + lastCol(m.climb, m.wkg, inp, r.kg) + '</td></tr>';
+    });
+    var b = r.boost;
+    h += '<tr><td></td><td><i class="sw" style="background:#9aa0a8"></i>BOOST<small>' + T.tagFixed + '</small></td><td>15<small>' + T.pct(b.pct) + '</small></td><td>' + w(b.watt) + '</td><td>' + b.nm + '</td>' +
+      '<td class="opt soft">' + w(b.climb) + ' W</td><td class="soft">' + lastCol(b.climb, b.wkg, inp, r.kg) + '</td></tr></tbody></table><div class="foot">';
+    if (any) h += '<p>* ' + T.sheetAdj + '</p>';
+    if (grade) h += '<p>' + T.gradeShort(one(r.kg), view.speed) + '</p>';
+    h += '<p>' + T.sheetStart + '</p><p>' + T.foot1 + '</p><p>' + SITE.replace(/^https:\/\//, '').replace(/\/$/, '') + '</p></div>';
+    $('sheet').innerHTML = h;
+  }
+  var sheetOpen = false;
+  function openSheet() { if (!last) return; sheetOpen = true; $('app').hidden = true; $('sheetWrap').hidden = false; window.scrollTo(0, 0); $('sheetBack').focus(); }
+  function closeSheet() { if (!sheetOpen) return; sheetOpen = false; $('app').hidden = false; $('sheetWrap').hidden = true; if (!$('results').hidden) $('print').focus(); }
+
+  // ---------------------------------------------------------------- Profile anzeigen
+  function renderProfiles() {
+    var a = active(), dirty = isDirty(), h = '';
+    profiles.forEach(function (p) {
+      var on = p.id === activeId;
+      h += '<button type="button" class="chip" data-id="' + p.id + '" aria-pressed="' + on + '">' + esc(p.name) + (on && dirty ? '<i class="dot"></i><span class="vh"> (' + T.profDirtyDot + ')</span>' : '') + '</button>';
+    });
+    if (profiles.length < MAXPROF) h += '<button type="button" class="chip add" id="profAdd">' + T.profAdd + '</button>';
+    $('profChips').innerHTML = h;
+    $('profNew').hidden = !ui.naming;
+    $('profState').hidden = !(a && dirty) || ui.naming;
+    $('profStateText').textContent = a ? T.profDirty(a.name) : '';
+    $('profGuard').hidden = !ui.guard;
+    $('profHint').textContent = !profiles.length ? T.profIntro : T.profWarn + (profiles.length >= MAXPROF ? ' ' + T.profMax : '');
+    $('profExport').hidden = !profiles.length;
+    $('profDelete').hidden = !a;
+    $('profDelete').textContent = !a ? '' : ui.delArmed ? T.profDeleteConfirm : T.profDelete(a.name);
+    $('profMsg').textContent = ui.msg;
+    $('profMsg').hidden = !ui.msg;
+    $('profFallback').hidden = !ui.fallback;
+    if (ui.fallback) $('profFallback').value = ui.fallback;
+    $('sharedBox').hidden = !sharedNote;
+    $('sharedText').textContent = T.sharedText + (stash ? T.sharedKeep : '');
+    $('sharedBack').hidden = !stash;
+  }
+  function quiet() { ui.guard = null; ui.msg = ''; ui.fallback = ''; ui.delArmed = false; clearTimeout(ui.delTimer); }
+
   function update(fromUser) {
     var inp = read();
+    cur = snapshot();
+    if (fromUser) { ui.guard = null; ui.msg = ''; }
     hints(inp);
     $('empty').hidden = inp.complete;
     $('results').hidden = !inp.complete;
+    document.documentElement.classList.toggle('has-sheet', inp.complete);
     if (inp.complete) render(inp);
-    else { last = null; lastInp = null; }
+    else { last = null; lastInp = null; closeSheet(); }
     if (fromUser) save();
+    renderProfiles();
   }
+
+  // Liste: Haken setzen, Anpassen auf- und zuklappen, Werte nachstellen
+  function modeByName(name) { return last ? last.modes.filter(function (m) { return m.name === name; })[0] : null; }
+  $('list').addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t.classList || !t.classList.contains('chk') || !lastInp) return;
+    var m = modeByName(t.getAttribute('data-m')), checks = extra.checks[lastInp.scope];
+    if (!m) return;
+    if (t.checked) checks[m.name] = sig(m); else delete checks[m.name];
+    refocus = '.chk[data-m="' + m.name + '"]';
+    update(true);
+  });
+  $('list').addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('button') : null;
+    if (!t || !lastInp) return;
+    var scope = lastInp.scope, adj = extra.adjust[scope], name;
+    if (t.classList.contains('tgl')) {
+      name = t.getAttribute('data-m');
+      openMode = openMode === name ? null : name;
+      refocus = '.tgl[data-m="' + name + '"]';
+      update(false);
+    } else if (t.hasAttribute('data-reset')) {
+      name = t.getAttribute('data-reset');
+      delete adj[name];
+      refocus = '.tgl[data-m="' + name + '"]';
+      update(true);
+    } else if (t.classList.contains('sb') && t.hasAttribute('data-f')) {
+      name = t.getAttribute('data-m');
+      var m = modeByName(name), f = t.getAttribute('data-f'), d = parseInt(t.getAttribute('data-d'), 10);
+      if (!m) return;
+      // Ausgangspunkt ist die tatsächlich wirksame Abweichung, nicht eine an der Grenze abgeschnittene
+      var eff = m.range ? { alLo: m.delta.alLo, alHi: m.delta.alHi, watt: m.delta.watt, nm: m.delta.nm }
+                        : { al: m.delta.alHi, watt: m.delta.watt, nm: m.delta.nm };
+      eff[f] = (eff[f] || 0) + d;
+      var any = false, k;
+      for (k in eff) { if (eff[k]) any = true; else delete eff[k]; }
+      if (any) adj[name] = eff; else delete adj[name];
+      refocus = '.sb[data-m="' + name + '"][data-f="' + f + '"][data-d="' + d + '"]';
+      update(true);
+    }
+  });
+  $('clearChecks').addEventListener('click', function () {
+    if (!lastInp) return;
+    extra.checks[lastInp.scope] = {};
+    update(true);
+  });
 
   // Zurücksetzen mit Rückfrage: erster Klick fragt, zweiter löscht
   var resetArmed = false, resetTimer = null;
@@ -830,15 +1540,14 @@ var AvinoxCalc = (function () {
       return;
     }
     disarmReset();
-    FIELDS.forEach(function (k) { $(k).value = ''; });
-    Array.prototype.forEach.call(document.querySelectorAll('input[name="motor"]'), function (el) { el.checked = false; });
-    setRadio('scope', 'four'); setRadio('profile', 'allround');
-    $('gear').value = ''; $('copyfallback').hidden = true;
+    applySnapshot({});
+    activeId = null; stash = null; sharedNote = false; ui.naming = false; quiet();
     try { localStorage.removeItem(KEY); } catch (e) {}
+    saveProfiles();
     update(false);
   });
 
-  $('inputs').addEventListener('input', function () { update(true); });
+  $('inputs').addEventListener('input', function (e) { if (e.target.closest && e.target.closest('#profField')) return; update(true); });
   $('inputs').addEventListener('submit', function (e) { e.preventDefault(); });
   function gearPick() {
     var g = $('gear').value; if (!g) return;
@@ -855,6 +1564,168 @@ var AvinoxCalc = (function () {
     try { navigator.clipboard.writeText(txt).then(done, fallback); } catch (e) { fallback(); }
   });
 
+  // ---------------------------------------------------------------- Profile bedienen
+  function selectProfile(id) {
+    var p = byId(id); if (!p) return;
+    applySnapshot(p.data); activeId = id; stash = null; sharedNote = false; ui.naming = false; quiet();
+    update(false); save();
+  }
+  $('profChips').addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('button') : null; if (!t) return;
+    if (t.id === 'profAdd') {
+      quiet(); ui.naming = true; update(false);
+      $('profName').value = ''; $('profName').focus();
+      return;
+    }
+    var id = t.getAttribute('data-id');
+    if (id === activeId) return;
+    var unsaved = active() ? isDirty() : hasContent(cur);
+    if (unsaved && ui.guard !== id) { quiet(); ui.naming = false; ui.guard = id; update(false); $('profSwitch').focus(); return; }
+    selectProfile(id);
+  });
+  $('profSwitch').addEventListener('click', function () { if (ui.guard) selectProfile(ui.guard); });
+  $('profStay').addEventListener('click', function () { quiet(); update(false); });
+  function createProfile() {
+    var name = cleanName($('profName').value);
+    if (!name) { ui.msg = T.profErrEmpty; update(false); $('profName').focus(); return; }
+    if (profiles.some(function (p) { return p.name.toLowerCase() === name.toLowerCase(); })) { ui.msg = T.profErrDup; update(false); $('profName').focus(); return; }
+    if (profiles.length >= MAXPROF) return;
+    var p = { id: newId(), name: name, data: snapshot() };
+    profiles.push(p); activeId = p.id; stash = null; sharedNote = false; ui.naming = false; quiet(); ui.msg = T.profSaved(name);
+    update(false); save();
+  }
+  $('profCreate').addEventListener('click', createProfile);
+  $('profName').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); createProfile(); }
+    if (e.key === 'Escape') { ui.naming = false; quiet(); update(false); }
+  });
+  $('profCancel').addEventListener('click', function () { ui.naming = false; quiet(); update(false); });
+  $('profSave').addEventListener('click', function () {
+    var a = active(); if (!a) return;
+    a.data = snapshot(); quiet(); ui.msg = T.profSaved(a.name);
+    update(false); save();
+  });
+  $('profDiscard').addEventListener('click', function () {
+    var a = active(); if (!a) return;
+    applySnapshot(a.data); quiet();
+    update(false); save();
+  });
+  $('profDelete').addEventListener('click', function () {
+    var a = active(); if (!a) return;
+    if (!ui.delArmed) {
+      quiet(); ui.delArmed = true;
+      ui.delTimer = setTimeout(function () { ui.delArmed = false; renderProfiles(); }, 4000);
+      renderProfiles(); return;
+    }
+    profiles = profiles.filter(function (p) { return p.id !== a.id; });
+    activeId = null; quiet(); ui.msg = T.profDeleted(a.name);
+    update(false); save();
+  });
+
+  // Sichern und Laden als Datei
+  function framed() { try { return window.self !== window.top; } catch (e) { return true; } }
+  function anchorSave(name, text) {
+    var url = URL.createObjectURL(new Blob([text], { type: 'application/json' })), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }
+  // done('saved' | 'declined' | 'text'): Im Claude-Fenster fragt die Plattform nach, sonst lädt der Browser die Datei
+  function saveFile(name, text, done) {
+    var cl = window.claude;
+    function direct() { if (framed()) return done('text'); try { anchorSave(name, text); done('saved'); } catch (e) { done('text'); } }
+    if (!cl || typeof cl.use !== 'function') return direct();
+    cl.use('downloads').then(function (d) {
+      if (!d) return direct();
+      d.save({ filename: name, data: text }).then(function () { done('saved'); }, function (err) { done(err && err.code === 'declined' ? 'declined' : 'text'); });
+    }, direct);
+  }
+  $('profExport').addEventListener('click', function () {
+    if (!profiles.length) return;
+    var text = JSON.stringify({ app: 'setup-calculator-for-avinox', version: 1, exported: new Date().toISOString(),
+      profiles: profiles.map(function (p) { return { name: p.name, data: p.data }; }) }, null, 1);
+    quiet(); ui.msg = T.profExportWait; renderProfiles();
+    saveFile(T.profFileName, text, function (state) {
+      quiet();
+      if (state === 'saved') ui.msg = T.profExported;
+      else if (state === 'text') { ui.msg = T.profExportText; ui.fallback = text; }
+      renderProfiles();
+      if (state === 'text') { $('profFallback').focus(); $('profFallback').select(); }
+    });
+  });
+  function importText(text) {
+    var d = null, n = 0, skip = 0;
+    try { d = JSON.parse(text); } catch (e) {}
+    quiet();
+    if (!d || d.app !== 'setup-calculator-for-avinox' || !Array.isArray(d.profiles)) { ui.msg = T.profImportBad; renderProfiles(); return; }
+    d.profiles.forEach(function (x) {
+      var name = x ? cleanName(x.name) : ''; if (!name) return;
+      var old = profiles.filter(function (p) { return p.name.toLowerCase() === name.toLowerCase(); })[0];
+      if (old) { old.data = clean(x.data); n++; }
+      else if (profiles.length < MAXPROF) { profiles.push({ id: newId(), name: name, data: clean(x.data) }); n++; }
+      else skip++;
+    });
+    if (!n && !skip) { ui.msg = T.profImportBad; renderProfiles(); return; }
+    ui.msg = T.profImported(n, skip);
+    saveProfiles(); update(false);
+  }
+  $('profImport').addEventListener('click', function () { $('profFile').value = ''; $('profFile').click(); });
+  $('profFile').addEventListener('change', function () {
+    var f = $('profFile').files && $('profFile').files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () { importText(String(rd.result)); };
+    rd.onerror = function () { quiet(); ui.msg = T.profImportBad; renderProfiles(); };
+    rd.readAsText(f);
+  });
+
+  // ---------------------------------------------------------------- Teilen per Link
+  function shareLink() {
+    var d = cur, q = ['m=' + d.motor];
+    if (C.MOTORS[d.motor].batteries && d.battery) q.push('a=' + d.battery);
+    q.push('b=' + d.bike, 'r=' + d.rider, 'p=' + d.power, 'c=' + d.cadence, 's=' + d.scope);
+    if (d.scope === 'four') q.push('f=' + d.profile);
+    if (view.adv) {
+      var parts = [], adj = d.adjust[d.scope];
+      Object.keys(adj).forEach(function (n) { Object.keys(adj[n]).forEach(function (f) { parts.push(n + '.' + f + '.' + adj[n][f]); }); });
+      if (parts.length) q.push('x=' + encodeURIComponent(parts.join(',')));
+    }
+    return (PAGES ? location.href.split('#')[0] : SITE) + '#' + q.join('&');
+  }
+  function fromHash() {
+    var h = String(location.hash || '').replace(/^#/, ''), q;
+    if (!/(^|&)m=/.test(h)) return null;
+    try { q = new URLSearchParams(h); } catch (e) { return null; }
+    if (!has(C.MOTORS, q.get('m'))) return null;
+    var d = { motor: q.get('m'), battery: q.get('a'), bike: q.get('b'), rider: q.get('r'), power: q.get('p'), cadence: q.get('c'), scope: q.get('s'), profile: q.get('f'), adjust: { four: {}, all: {} } };
+    var sc = d.scope === 'all' ? 'all' : 'four', x = q.get('x');
+    if (x) x.split(',').forEach(function (part) { var t = part.split('.'); if (t.length !== 3) return; (d.adjust[sc][t[0]] = d.adjust[sc][t[0]] || {})[t[1]] = Number(t[2]); });
+    d = clean(d);
+    return { data: d, adv: Object.keys(d.adjust[sc]).length > 0 };
+  }
+  $('share').addEventListener('click', function () {
+    if (!last) return;
+    var url = shareLink(), btn = $('share'), fb = $('copyfallback');
+    function done() { btn.textContent = T.shareCopied; setTimeout(function () { btn.textContent = T.shareBtn; }, 1800); }
+    function fallback() { fb.hidden = false; fb.value = url; fb.focus(); fb.select(); btn.textContent = T.shareFallback; }
+    function copy() { try { navigator.clipboard.writeText(url).then(done, fallback); } catch (e) { fallback(); } }
+    var touch = false; try { touch = window.matchMedia('(pointer: coarse)').matches; } catch (e) {}
+    if (touch && navigator.share) {
+      try { navigator.share({ title: T.title, text: copyText().split('\n')[0], url: url }).then(function () {}, function (err) { if (!err || err.name !== 'AbortError') copy(); }); } catch (e) { copy(); }
+    } else copy();
+  });
+  $('sharedBack').addEventListener('click', function () {
+    if (!stash) return;
+    applySnapshot(stash.data); activeId = byId(stash.active) ? stash.active : null; stash = null; sharedNote = false; quiet();
+    update(false); save();
+  });
+  $('sharedClose').addEventListener('click', function () { stash = null; sharedNote = false; update(false); save(); });
+
+  // Vergleich und Druckansicht
+  $('cmpSel').addEventListener('change', function () { cmp = $('cmpSel').value; update(false); });
+  $('print').addEventListener('click', openSheet);
+  $('sheetBack').addEventListener('click', closeSheet);
+  $('sheetPrint').addEventListener('click', function () { try { window.print(); } catch (e) {} });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheetOpen) closeSheet(); });
+
   function chooseLang(l) {
     setLang(l);
     try { localStorage.setItem(LANGKEY, l); } catch (e) {}
@@ -865,10 +1736,31 @@ var AvinoxCalc = (function () {
   $('lang-de').addEventListener('click', function () { chooseLang('de'); });
   $('lang-en').addEventListener('click', function () { chooseLang('en'); });
 
+  // Umschalter für Design, Einheit und Tempo
+  function setView(k, v) { view[k] = v; saveView(); applyView(); update(false); }
+  $('look-dark').addEventListener('click', function () { setView('look', 'dark'); });
+  $('look-light').addEventListener('click', function () { setView('look', 'light'); });
+  $('adv').addEventListener('click', function () { setView('adv', !view.adv); });
+  $('unit-wkg').addEventListener('click', function () { setView('unit', 'wkg'); });
+  $('unit-grade').addEventListener('click', function () { setView('unit', 'grade'); });
+  $('speed-less').addEventListener('click', function () { if (view.speed > 5) setView('speed', view.speed - 1); });
+  $('speed-more').addEventListener('click', function () { if (view.speed < 24) setView('speed', view.speed + 1); });
+
   setLang(lang);
   applyStatic();
   load();
+  // Ein Link mit Werten zeigt das geteilte Setup. Die eigenen Eingaben bleiben gespeichert, bis man etwas ändert.
+  var shared = fromHash();
+  if (shared) {
+    var mine = snapshot();
+    if (hasContent(mine) || activeId) stash = { data: mine, active: activeId };
+    applySnapshot(shared.data); activeId = null; sharedNote = true;
+    if (shared.adv) view.adv = true;
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    applyView();
+  }
   update(false);
+  if (shared && !stash) save();
 })();
 </script>
 </body>

@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import io.github.th3s1nc.setuprechner.ui.DARK_BACKGROUND
+import io.github.th3s1nc.setuprechner.ui.LIGHT_BACKGROUND
 import io.github.th3s1nc.setuprechner.ui.SetupTheme
 import io.github.th3s1nc.setuprechner.ui.SetupApp
 
@@ -18,13 +20,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Die App ist immer dunkel, deshalb helle Symbole in Status- und Navigationsleiste.
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
-        )
+        // Helles oder dunkles Design (Info > Design): Fensterhintergrund und Symbole der Systemleisten passend dazu
+        val light = AppDesign.isLight(this)
+        window.decorView.setBackgroundColor(if (light) LIGHT_BACKGROUND else DARK_BACKGROUND)
+        val bars = if (light) SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT) else SystemBarStyle.dark(Color.TRANSPARENT)
+        enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
         setContent {
-            SetupTheme {
+            SetupTheme(light) {
                 SetupApp()
             }
         }

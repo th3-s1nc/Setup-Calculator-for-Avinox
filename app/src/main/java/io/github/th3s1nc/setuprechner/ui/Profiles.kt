@@ -1,5 +1,7 @@
 package io.github.th3s1nc.setuprechner.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -25,12 +27,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.th3s1nc.setuprechner.R
+import java.time.Instant
 
 private val ChipShape = RoundedCornerShape(18.dp)
 
@@ -56,7 +60,7 @@ internal fun ProfileChips(state: SetupState, showAdd: Boolean) {
 }
 
 @Composable
-private fun Chip(label: String, selected: Boolean, accent: Boolean = false, onClick: () -> Unit) {
+internal fun Chip(label: String, selected: Boolean, accent: Boolean = false, onClick: () -> Unit) {
     val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
@@ -115,7 +119,55 @@ internal fun ProfileCard(state: SetupState) {
                         }
                     }
                 }
+                BackupRow(state)
             }
         }
     }
+}
+
+/** Profile als Datei sichern und aus einer Datei laden. Das Format ist dasselbe wie in der Web-Version. */
+@Composable
+private fun BackupRow(state: SetupState) {
+    val context = LocalContext.current
+    val cs = MaterialTheme.colorScheme
+    var message by remember { mutableStateOf("") }
+    // Namen für Profile ohne eigenen Namen, wie sie auch in der App stehen
+    val defaults = state.profiles.mapIndexed { i, _ -> stringResource(R.string.profile_default, (i + 1).toString()) }
+    val fileName = stringResource(R.string.backup_file)
+
+    val saver = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) {
+            val json = state.backup(Instant.now().toString()) { i -> defaults.getOrElse(i) { "Profil " + (i + 1) } }
+            message = context.getString(if (writeText(context, uri, json)) R.string.backup_saved else R.string.backup_failed)
+        }
+    }
+    val loader = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            val text = readText(context, uri)
+            val result = if (text == null) null else state.restore(text) { i -> defaults.getOrElse(i) { "Profil " + (i + 1) } }
+            message = if (result == null) context.getString(R.string.backup_bad)
+            else {
+                val loaded = if (result.first == 1) context.getString(R.string.backup_loaded_one)
+                else context.getString(R.string.backup_loaded_many, result.first.toString())
+                if (result.second > 0) loaded + " " + context.getString(R.string.backup_skipped, result.second.toString()) else loaded
+            }
+        }
+    }
+
+    Hint(stringResource(R.string.backup_hint))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        // Ohne Dateiauswahl auf dem Gerät gibt es eine Meldung statt eines Absturzes
+        TextButton(onClick = {
+            message = try { saver.launch(fileName); "" } catch (e: Exception) { context.getString(R.string.backup_unavailable) }
+        }) { Text(stringResource(R.string.backup_save)) }
+        TextButton(onClick = {
+            message = try {
+                loader.launch(arrayOf("application/json", "application/octet-stream", "text/plain"))
+                ""
+            } catch (e: Exception) {
+                context.getString(R.string.backup_unavailable)
+            }
+        }) { Text(stringResource(R.string.backup_load)) }
+    }
+    if (message.isNotEmpty()) Text(message, fontSize = 13.sp, lineHeight = 18.sp, color = cs.onSurface)
 }

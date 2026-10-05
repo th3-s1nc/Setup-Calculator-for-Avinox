@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.th3s1nc.setuprechner.R
+import io.github.th3s1nc.setuprechner.calc.Battery
 import io.github.th3s1nc.setuprechner.calc.Motor
 import io.github.th3s1nc.setuprechner.calc.Profile
 import io.github.th3s1nc.setuprechner.calc.Scope
@@ -69,10 +70,26 @@ internal fun InputTab(state: SetupState, onDone: () -> Unit) {
                         onSelect = { state.motor = it; state.edit() }
                     )
                     val m = state.motor
-                    if (m != null) {
-                        Hint(stringResource(R.string.motor_hint, m.nm.toString(), text.watt(m.watt), m.boostNm.toString(), text.watt(m.boostW)))
-                    } else {
+                    if (m == null) {
                         Hint(stringResource(R.string.motor_choose))
+                    } else if (draft.batteryMissing) {
+                        Hint(stringResource(R.string.motor_hint_open, m.nm.toString(), text.watt(m.watt), m.boostNm.toString()))
+                    } else {
+                        Hint(stringResource(R.string.motor_hint, m.nm.toString(), text.watt(m.watt), m.boostNm.toString(), text.watt(m.boostWatt(state.battery))))
+                    }
+                }
+                // Beim M2S bestimmt der Akku die Spitzenleistung im Boost
+                if (state.motor?.needsBattery == true) {
+                    Group(stringResource(R.string.battery)) {
+                        val batteries: List<Pair<Battery?, String>> = Battery.values().map { it to it.label }
+                        Segmented(
+                            options = batteries,
+                            selected = state.battery,
+                            onSelect = { state.battery = it; state.edit() }
+                        )
+                        val chosen = state.battery
+                        if (chosen == null) Hint(stringResource(R.string.battery_choose))
+                        else Hint(stringResource(R.string.battery_hint, text.watt(chosen.boostW)))
                     }
                 }
             }
@@ -215,7 +232,7 @@ private fun SaveBar(state: SetupState, onDone: () -> Unit) {
             Button(onClick = { state.save() }, enabled = state.canSave, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.save), fontSize = 15.sp, modifier = Modifier.padding(vertical = 4.dp))
             }
-            OutlinedButton(onClick = onDone, enabled = state.saved.complete, modifier = Modifier.weight(1f)) {
+            OutlinedButton(onClick = onDone, enabled = state.saved.usable, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.show_setup), fontSize = 15.sp, modifier = Modifier.padding(vertical = 4.dp))
             }
         }
@@ -227,7 +244,7 @@ private fun SaveBar(state: SetupState, onDone: () -> Unit) {
                 )
                 TextButton(onClick = { state.discard() }) { Text(stringResource(R.string.discard)) }
             }
-        } else if (state.saved.complete) {
+        } else if (state.saved.usable) {
             Text(stringResource(R.string.status_saved), fontSize = 13.sp, color = cs.onSurfaceVariant)
         } else {
             Text(stringResource(R.string.status_incomplete), fontSize = 13.sp, lineHeight = 18.sp, color = cs.onSurfaceVariant)

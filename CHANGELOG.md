@@ -2,6 +2,19 @@
 
 (Deutsch.)
 
+## v1.9.1
+- Mit „Erweitert“ steht die Tabelle nach Trittfrequenz wieder direkt unter der aufgeklappten Stufe. Das Nachstellen von Hand folgt darunter, vorher stand es davor und schob die Tabelle aus dem Bild.
+
+## v1.9
+App und Web-Version (`docs/index.html`) haben jetzt dieselben Funktionen.
+- Neu: Akku-Auswahl beim M2S. Im Boost 1.500 W mit FP700/RS800, 1.300 W mit FS800/FS600 (Angaben von DJI). Profile aus älteren Versionen rechnen weiter mit 1.500 W, bis ein Akku gewählt ist.
+- Neu: Schalter „Erweitert“. Dahinter eine Checkliste beim Übertragen in die Avinox Ride App, das Nachstellen der Werte von Hand, die geschätzte Steigung statt W/kg und der Vergleich zweier Setups. Ist der Schalter aus, bleibt es beim bisherigen Rechner.
+- Neu: Profile als Datei sichern und laden. Das Format ist in App und Web-Version dasselbe.
+- Neu: Link teilen. Die Eingaben stecken im Link, er öffnet die Web-Version.
+- Neu: Drucken als Setup-Karte mit Kästchen zum Abhaken.
+- Neu: helles Design, in der App unter Info.
+- Web-Version: Profile im Browser, mit dem Hinweis, dass sie beim Löschen der Browserdaten verloren gehen.
+
 ## v1.8
 - Erste öffentliche Version auf GitHub.
 - Hinweis ergänzt: Veröffentlichung mit Zustimmung von Bernd Hemmersbach.
