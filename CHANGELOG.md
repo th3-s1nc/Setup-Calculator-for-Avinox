@@ -2,6 +2,11 @@
 
 (Deutsch.)
 
+## Web-Version, 05.10.2026
+Nur `docs/index.html`, die App bleibt bei v1.9.1.
+- Mit „Erweitert“ steht die Tabelle nach Trittfrequenz jetzt wie in der App unter der aufgeklappten Stufe, neben dem Nachstellen von Hand. So zeigt sich jede Änderung sofort in der Tabelle. Auch BOOST lässt sich aufklappen.
+- Die Karten mit allen Tabellen untereinander gibt es weiter im Standardrechner.
+
 ## v1.9.1
 - Mit „Erweitert“ steht die Tabelle nach Trittfrequenz wieder direkt unter der aufgeklappten Stufe. Das Nachstellen von Hand folgt darunter, vorher stand es davor und schob die Tabelle aus dem Bild.
 

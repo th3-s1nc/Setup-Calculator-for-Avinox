@@ -290,6 +290,12 @@ button.act.quiet:hover { background: var(--sunken); color: var(--fg); border-col
   .has-sheet .sheet { padding: 0; border-radius: 0; }
   @page { margin: 14mm; }
 }
+
+/* Aufgeklappte Stufe mit "Erweitert": links die Tabelle nach Trittfrequenz, rechts das Nachstellen */
+.adjust { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(0, 1.25fr); gap: 14px 24px; align-items: start; }
+.adjtable { max-width: 420px; }
+.adjctl { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start; min-width: 0; }
+@media (max-width: 760px) { .adjust { grid-template-columns: minmax(0, 1fr); } .adjtable { max-width: none; } }
 </style>
 </head>
 <body>
@@ -488,7 +494,7 @@ button.act.quiet:hover { background: var(--sunken); color: var(--fg); border-col
         <div class="list cmp" id="cmpTable" hidden></div>
       </section>
 
-      <section>
+      <section id="cardsSection">
         <div class="sechead">
           <div>
             <h2 data-i18n="h2power"></h2>
@@ -872,7 +878,7 @@ var AvinoxCalc = (function () {
       gradeNote: function (v) { return 'So wird die Steigung geschätzt: aus Eigenleistung plus Motorleistung und Gesamtgewicht bei ' + v + ' km/h, mit Rollwiderstand 0,015, Luftwiderstandsfläche 0,6 m² und 4 % Verlust im Antrieb. Das gilt für festen Untergrund und setzt den passenden Gang voraus. Auf losem Boden ist es weniger.'; },
       chkAria: function (m) { return m + ' als übertragen abhaken'; },
       progress: function (n, t) { return n + ' von ' + t + ' Stufen in die Avinox Ride App übertragen.'; },
-      progressHint: 'Hak eine Stufe ab, sobald du sie eingetragen hast. Ändert sich einer ihrer Werte, verschwindet der Haken wieder. Das Dreieck rechts öffnet das Anpassen von Hand.',
+      progressHint: 'Hak eine Stufe ab, sobald du sie eingetragen hast. Ändert sich einer ihrer Werte, verschwindet der Haken wieder. Das Dreieck rechts öffnet die Tabelle nach Trittfrequenz und das Anpassen von Hand.',
       clearChecks: 'Haken entfernen',
       profTitle: 'Profile', profAdd: '+ Neues Profil', profSave: 'Speichern', profDiscard: 'Verwerfen', cancel: 'Abbrechen', close: 'Schließen',
       profIntro: 'Speichere deine Eingaben unter einem Namen, zum Beispiel für mehrere Fahrer oder Bikes.',
@@ -898,8 +904,8 @@ var AvinoxCalc = (function () {
       sheetHint: 'Zum Drucken oder als PDF sichern. Unterwegs reicht auch ein Bildschirmfoto.', sheetAdj: 'von Hand angepasst', sheetTick: 'eingetragen',
       sheetStart: 'Die Werte sind Startpunkte. Stimm sie nach Fahrgefühl nach.',
       storeNote: ' Eingaben und Profile liegen nur in deinem Browser. Wer die Browserdaten löscht, löscht auch sie.',
-      adv: 'Erweitert', advHint: 'Abhaken beim Übertragen, Werte von Hand nachstellen, Steigung statt W/kg',
-      adjOpen: function (m) { return m + ' anpassen'; }, adjTag: 'angepasst',
+      adv: 'Erweitert', advHint: 'Abhaken beim Übertragen, Werte von Hand nachstellen, Steigung statt W/kg, Vergleich',
+      adjOpen: function (m) { return m + ': Tabelle und Anpassen'; }, adjTag: 'angepasst',
       adjAl: 'Assist Level', adjAlLo: 'Assist Level von', adjAlHi: 'Assist Level bis', adjW: 'max. Watt', adjNm: 'max. Nm',
       adjCalc: function (v) { return 'berechnet: ' + v; }, adjReset: 'Zurücksetzen', less: 'verringern', more: 'erhöhen',
       adjHint: 'Gespeichert wird die Abweichung vom berechneten Wert. Sie bleibt erhalten, wenn du deine Eingaben änderst.',
@@ -984,7 +990,7 @@ var AvinoxCalc = (function () {
       gradeNote: function (v) { return 'How the gradient is estimated: from rider power plus motor power and total weight at ' + v + ' km/h, with a rolling resistance of 0.015, a drag area of 0.6 m² and 4% drivetrain loss. This holds for firm ground and assumes a suitable gear. On loose ground it is less.'; },
       chkAria: function (m) { return 'Tick ' + m + ' as entered'; },
       progress: function (n, t) { return n + ' of ' + t + ' steps entered in the Avinox Ride app.'; },
-      progressHint: 'Tick a step once you have entered it. If one of its values changes, the tick disappears. The triangle on the right opens manual adjustment.',
+      progressHint: 'Tick a step once you have entered it. If one of its values changes, the tick disappears. The triangle on the right opens the table by cadence and manual adjustment.',
       clearChecks: 'Clear ticks',
       profTitle: 'Profiles', profAdd: '+ New profile', profSave: 'Save', profDiscard: 'Discard', cancel: 'Cancel', close: 'Close',
       profIntro: 'Save your inputs under a name, for example for several riders or bikes.',
@@ -1010,8 +1016,8 @@ var AvinoxCalc = (function () {
       sheetHint: 'Print it or save it as a PDF. On the trail a screenshot will do.', sheetAdj: 'adjusted by hand', sheetTick: 'entered',
       sheetStart: 'The values are starting points. Fine-tune them by feel.',
       storeNote: ' Inputs and profiles live only in your browser. Clearing the browser data deletes them too.',
-      adv: 'Advanced', advHint: 'Tick off steps, adjust values by hand, gradient instead of W/kg',
-      adjOpen: function (m) { return 'Adjust ' + m; }, adjTag: 'adjusted',
+      adv: 'Advanced', advHint: 'Tick off steps, adjust values by hand, gradient instead of W/kg, comparison',
+      adjOpen: function (m) { return m + ': table and adjustment'; }, adjTag: 'adjusted',
       adjAl: 'Assist level', adjAlLo: 'Assist level from', adjAlHi: 'Assist level to', adjW: 'max. watts', adjNm: 'max. Nm',
       adjCalc: function (v) { return 'calculated: ' + v; }, adjReset: 'Reset', less: 'decrease', more: 'increase',
       adjHint: 'The deviation from the calculated value is stored. It stays when you change your inputs.',
@@ -1274,8 +1280,28 @@ var AvinoxCalc = (function () {
       '<b' + (value !== calc ? ' class="adj"' : '') + '>' + text + '</b>' + btn(step, '+', T.more) + '</div>' +
       '<small>' + (value !== calc ? T.adjCalc(calcText) : '&nbsp;') + '</small></div>';
   }
-  function adjustPanel(m) {
-    var L2 = m.limits, h = '<div class="adjust">';
+  // Tabelle nach Trittfrequenz und Hinweise einer Stufe, für die Karte und für den aufgeklappten Bereich
+  function tableHtml(m, r, inp, next) {
+    var boost = m.name === 'BOOST', two = !boost && m.alLo !== m.alHi;
+    var c = '<table><thead><tr><th>' + T.thRpm + '</th>' + (two ? '<th>' + T.thFlat + '</th><th>' + T.thClimb + '</th>' : '<th>' + T.thMotor + '</th>') +
+      '<th>' + (unit() === 'grade' ? T.thGrade : 'W/kg') + '</th></tr></thead><tbody>';
+    m.rows.forEach(function (x) {
+      c += '<tr' + (x.pref ? ' class="pref"' : '') + '><td>' + x.rpm + '</td>' + (two ? '<td>' + w(x.flat) + '</td>' : '') + '<td>' + w(x.climb) + '</td><td>' +
+        (unit() === 'grade' ? lastCol(x.climb, x.wkg, inp, r.kg) : kgf(x.wkg)) + '</td></tr>';
+    });
+    c += '</tbody></table><div class="notes">';
+    var ns = boost ? [{ t: T.nBoost(w(m.watt), m.rpmForMax) }] : notesFor(m, inp, next);
+    if (!ns.length) ns = [{ t: T.nFull }];
+    ns.forEach(function (n) { c += '<p' + (n.w ? ' class="w"' : '') + '>' + n.t + '</p>'; });
+    return c + '</div>';
+  }
+  // Aufgeklappter Bereich unter einer Stufe: links die Tabelle, rechts das Nachstellen. So zeigt sich
+  // jede Änderung sofort in der Tabelle. BOOST ist fest und hat nur die Tabelle.
+  function openPanel(m, r, inp, next) {
+    var h = '<div class="adjust"><div class="card adjtable">' + tableHtml(m, r, inp, next) + '</div>';
+    if (m.name === 'BOOST') return h + '</div>';
+    var L2 = m.limits;
+    h += '<div class="adjctl">';
     if (m.range) {
       h += stepper(m, 'alLo', T.adjAlLo, m.alLo, m.calc.alLo, 1, L2.al[0], m.alHi, String(m.alLo), String(m.calc.alLo));
       h += stepper(m, 'alHi', T.adjAlHi, m.alHi, m.calc.alHi, 1, m.alLo, L2.al[1], String(m.alHi), String(m.calc.alHi));
@@ -1285,7 +1311,7 @@ var AvinoxCalc = (function () {
     h += stepper(m, 'watt', T.adjW, m.watt, m.calc.watt, 50, L2.w[0], L2.w[1], w(m.watt), w(m.calc.watt));
     h += stepper(m, 'nm', T.adjNm, m.nm, m.calc.nm, 5, L2.nm[0], L2.nm[1], String(m.nm), String(m.calc.nm));
     h += '<div class="stp end"><button type="button" class="link" data-reset="' + m.name + '"' + (m.adjusted ? '' : ' disabled') + '>' + T.adjReset + '</button></div>';
-    return h + '<p class="adjhint">' + T.adjHint + '</p></div>';
+    return h + '<p class="adjhint">' + T.adjHint + '</p></div></div>';
   }
 
   function render(inp) {
@@ -1295,11 +1321,11 @@ var AvinoxCalc = (function () {
     var r = C.compute(inp), M = r.motor, scale = M.boostW, checks = extra.checks[inp.scope], done = 0;
     last = r; lastInp = inp;
     $('summary').textContent = T.summary(M.label, one(r.kg), inp.cadence, w(inp.power));
-    if (openMode && !r.modes.some(function (m) { return m.name === openMode; })) openMode = null;
+    if (openMode && openMode !== 'BOOST' && !r.modes.some(function (m) { return m.name === openMode; })) openMode = null;
 
     var h = '<div class="row head">' + (adv ? '<span></span>' : '') + '<span class="label">' + T.thMode + '</span><span class="label">' + T.thAL + '</span><span class="label">' + T.thW + '</span><span class="label">' + T.thNm + '</span><span class="label meterhead">' + T.thMotorAt(inp.cadence) + '</span>' + (adv ? '<span></span>' : '') + '</div>';
     var zone = null;
-    r.modes.forEach(function (m) {
+    r.modes.forEach(function (m, idx) {
       var isDone = adv && checks[m.name] === sig(m), isOpen = openMode === m.name, d = m.delta;
       if (isDone) done++;
       if (r.ladder && m.zone !== zone) { zone = m.zone; h += '<div class="row zone"><span class="label" style="grid-column:1/-1">' + T.zones[zone] + '</span></div>'; }
@@ -1313,14 +1339,16 @@ var AvinoxCalc = (function () {
         '<span class="meter"><span class="track"><i class="climb" style="width:' + (m.climb / scale * 100).toFixed(1) + '%"></i><i style="width:' + (m.flat / scale * 100).toFixed(1) + '%"></i></span>' +
         '<span><b>' + powText(m) + '</b> · ' + lastCol(m.climb, m.wkg, inp, r.kg) + '</span></span>' +
         (adv ? '<button type="button" class="tgl" data-m="' + m.name + '" aria-expanded="' + isOpen + '" aria-label="' + T.adjOpen(m.name) + '"><i class="tri"></i></button>' : '') + '</div>';
-      if (isOpen) h += adjustPanel(m);
+      if (isOpen) h += openPanel(m, r, inp, idx + 1 < r.modes.length ? r.modes[idx + 1] : null);
     });
-    var b = r.boost;
-    h += '<div class="row" style="--m:var(--boost)">' + (adv ? '<span></span>' : '') +
+    var b = r.boost, boostOpen = openMode === 'BOOST';
+    h += '<div class="row' + (boostOpen ? ' open' : '') + '" style="--m:var(--boost)">' + (adv ? '<span></span>' : '') +
       '<span class="mode"><i class="sw"></i><b>BOOST</b><span class="tag">' + T.tagFixed + '</span></span>' +
       '<span class="val">15<small>' + T.pct(b.pct) + '</small></span><span class="val">' + w(b.watt) + '</span><span class="val">' + b.nm + '</span>' +
       '<span class="meter"><span class="track"><i style="width:' + (b.climb / scale * 100).toFixed(1) + '%"></i></span>' +
-      '<span><b>' + w(b.climb) + ' W</b> · ' + lastCol(b.climb, b.wkg, inp, r.kg) + '</span></span>' + (adv ? '<span></span>' : '') + '</div>';
+      '<span><b>' + w(b.climb) + ' W</b> · ' + lastCol(b.climb, b.wkg, inp, r.kg) + '</span></span>' +
+      (adv ? '<button type="button" class="tgl" data-m="BOOST" aria-expanded="' + boostOpen + '" aria-label="' + T.adjOpen('BOOST') + '"><i class="tri"></i></button>' : '') + '</div>';
+    if (boostOpen) h += openPanel(b, r, inp, null);
     $('list').innerHTML = h;
     $('list').classList.toggle('basic', !adv);
     if (refocus) { var el = $('list').querySelector(refocus); if (el && !el.disabled) el.focus(); refocus = null; }
@@ -1332,25 +1360,16 @@ var AvinoxCalc = (function () {
     $('progressText').textContent = T.progress(done, r.modes.length);
     $('clearChecks').hidden = done === 0;
 
+    // Karten mit allen Tabellen nur im Standardrechner. Mit "Erweitert" steht die Tabelle unter der aufgeklappten Stufe.
     var c = '';
-    r.modes.concat([b]).forEach(function (m, idx) {
-      var boost = m.name === 'BOOST', two = !boost && m.alLo !== m.alHi;
+    if (!adv) r.modes.concat([b]).forEach(function (m, idx) {
+      var boost = m.name === 'BOOST';
       c += '<article class="card"' + (boost ? '' : ' style="--m:' + COLORS[m.name] + '"') + '>' +
         '<div class="band' + (boost ? ' boost' : '') + '"><b>' + m.name + '</b><span>' +
-        T.alLabel + ' ' + (boost ? '15' : alText(m)) + ' · ' + w(m.watt) + ' W · ' + m.nm + ' Nm' + (!boost && m.adjusted ? ' · ' + T.adjTag : '') + '</span></div>' +
-        '<table><thead><tr><th>' + T.thRpm + '</th>' + (two ? '<th>' + T.thFlat + '</th><th>' + T.thClimb + '</th>' : '<th>' + T.thMotor + '</th>') +
-        '<th>' + (unit() === 'grade' ? T.thGrade : 'W/kg') + '</th></tr></thead><tbody>';
-      m.rows.forEach(function (x) {
-        c += '<tr' + (x.pref ? ' class="pref"' : '') + '><td>' + x.rpm + '</td>' + (two ? '<td>' + w(x.flat) + '</td>' : '') + '<td>' + w(x.climb) + '</td><td>' +
-          (unit() === 'grade' ? lastCol(x.climb, x.wkg, inp, r.kg) : kgf(x.wkg)) + '</td></tr>';
-      });
-      c += '</tbody></table><div class="notes">';
-      var next = idx + 1 < r.modes.length ? r.modes[idx + 1] : null;
-      var ns = boost ? [{ t: T.nBoost(w(b.watt), b.rpmForMax) }] : notesFor(m, inp, next);
-      if (!ns.length) ns = [{ t: T.nFull }];
-      ns.forEach(function (n) { c += '<p' + (n.w ? ' class="w"' : '') + '>' + n.t + '</p>'; });
-      c += '</div></article>';
+        T.alLabel + ' ' + (boost ? '15' : alText(m)) + ' · ' + w(m.watt) + ' W · ' + m.nm + ' Nm</span></div>' +
+        tableHtml(m, r, inp, idx + 1 < r.modes.length ? r.modes[idx + 1] : null) + '</article>';
     });
+    $('cardsSection').hidden = adv;
     $('cards').innerHTML = c;
 
     var names = C.LADDERS[inp.motor].map(function (d) { return d.name; });
