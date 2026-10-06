@@ -213,7 +213,7 @@ class SetupText(private val res: Resources) {
             .append(b.nm).append("</td><td class=\"soft\">").append(html(s(R.string.power_single, watt(b.atCadence)))).append("</td><td class=\"soft\">")
             .append(html(last(b.atCadence, b.wkg, inp, speed))).append("</td></tr></tbody></table><div class=\"foot\">")
         if (any) sb.append("<p>* ").append(html(s(R.string.sheet_adjusted))).append("</p>")
-        if (speed != null) sb.append("<p>").append(html(s(R.string.grade_short, plain(r.totalKg), speed.toString()))).append("</p>")
+        if (speed != null) sb.append("<p>").append(html(s(R.string.grade_short, speed.toString(), watt(inp.powerW), plain(r.totalKg)))).append("</p>")
         sb.append("<p>").append(html(s(R.string.source_tune))).append("</p><p>").append(html(s(R.string.source_text))).append(" ")
             .append(html(s(R.string.source_consent))).append("</p><p>").append(html(Exchange.SITE.removePrefix("https://").removeSuffix("/")))
             .append("</p></div></body></html>")

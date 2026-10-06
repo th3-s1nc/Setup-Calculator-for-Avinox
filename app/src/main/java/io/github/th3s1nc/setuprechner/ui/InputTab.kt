@@ -112,7 +112,7 @@ internal fun InputTab(state: SetupState, onDone: () -> Unit) {
                     }
                 }
 
-                Group(stringResource(R.string.rider_power)) {
+                InfoGroup(stringResource(R.string.rider_power), stringResource(R.string.power_tip)) {
                     StepperField(
                         label = stringResource(R.string.power_label),
                         value = state.power,
@@ -176,6 +176,8 @@ internal fun InputTab(state: SetupState, onDone: () -> Unit) {
                 }
             }
         }
+
+        Hint(stringResource(R.string.range_note))
 
         SaveBar(state, onDone)
     }

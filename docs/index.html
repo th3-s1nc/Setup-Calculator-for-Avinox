@@ -296,6 +296,19 @@ button.act.quiet:hover { background: var(--sunken); color: var(--fg); border-col
 .adjtable { max-width: 420px; }
 .adjctl { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start; min-width: 0; }
 @media (max-width: 760px) { .adjust { grid-template-columns: minmax(0, 1fr); } .adjtable { max-width: none; } }
+
+/* i-Knopf mit Erklärung: am PC beim Drüberfahren, überall per Klick oder Antippen */
+.tiphost { position: relative; }
+.labelrow { display: flex; align-items: center; gap: 8px; }
+.infobtn { position: relative; width: 20px; height: 20px; flex: none; display: inline-grid; place-items: center; padding: 0; border-radius: 50%; border: 1px solid var(--muted); background: transparent; color: var(--muted); font: italic 700 0.8rem/1 Georgia, "Times New Roman", serif; text-transform: none; letter-spacing: 0; cursor: pointer; }
+.infobtn::after { content: ""; position: absolute; inset: -10px; }
+.infobtn:hover, .infobtn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.infobtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tip { display: none; position: absolute; z-index: 6; left: 0; right: 0; top: calc(100% + 8px); background: var(--surface); color: var(--fg); border: 1px solid var(--muted); border-radius: 8px; padding: 10px 12px; font: 400 0.84rem/1.45 var(--f-body); letter-spacing: 0; text-transform: none; text-align: left; box-shadow: 0 8px 24px rgb(0 0 0 / 0.35); }
+.infobtn[aria-expanded="true"] + .tip { display: block; }
+@media (hover: hover) { .infobtn:hover + .tip { display: block; } }
+.row.head .meterhead { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 640px) { .row.head .meterhead { display: flex; grid-column: 1 / -1; } }
 </style>
 </head>
 <body>
@@ -386,7 +399,10 @@ button.act.quiet:hover { background: var(--sunken); color: var(--fg); border-col
       </div>
 
       <div class="field">
-        <label for="power" data-i18n="power"></label>
+        <div class="labelrow tiphost">
+          <label for="power" data-i18n="power"></label>
+          <button type="button" class="infobtn" aria-expanded="false" aria-controls="tipPower">i</button><span class="tip" id="tipPower" data-i18n="powerTip"></span>
+        </div>
         <div class="num"><input id="power" type="number" inputmode="numeric" min="50" max="500" step="5"><span data-i18n="unitW"></span></div>
         <span class="hint" data-i18n="powerHint"></span>
         <span class="err" id="err-power" hidden></span>
@@ -427,6 +443,7 @@ button.act.quiet:hover { background: var(--sunken); color: var(--fg); border-col
         <span class="hint" id="profileHint"></span>
       </fieldset>
 
+      <span class="hint" data-i18n="rangeNote"></span>
       <button type="button" class="reset" id="reset"></button>
     </form>
 
@@ -466,6 +483,7 @@ button.act.quiet:hover { background: var(--sunken); color: var(--fg); border-col
             <span id="speedText"></span>
             <button type="button" class="sb" id="speed-more">+</button>
           </div>
+          <span class="advhint" id="speedNote" data-i18n="speedNote" hidden></span>
         </div>
         <p class="gradeshort" id="gradeShort" hidden></p>
         <div class="list" id="list"></div>
@@ -474,7 +492,6 @@ button.act.quiet:hover { background: var(--sunken); color: var(--fg); border-col
           <button type="button" class="link" id="clearChecks" data-i18n="clearChecks" hidden></button>
         </div>
         <p class="legend-line" id="progressHint" data-i18n="progressHint" hidden></p>
-        <p class="legend-line" id="legendLine"></p>
         <p class="legend-line" id="gradeNote" hidden></p>
         <textarea id="copyfallback" hidden readonly></textarea>
       </section>
@@ -817,15 +834,19 @@ var AvinoxCalc = (function () {
       weightHint: 'Bike mit allem, was montiert ist. Fahrer abfahrtbereit mit Kleidung, Helm und Rucksack.',
       total: 'Gesamtgewicht',
       power: 'Eigenleistung', unitW: 'Watt',
-      powerHint: 'Dein Durchschnitt über 5 bis 10 Minuten am Anstieg, Motor aus. Steht in der Avinox-App unter Fahrdaten, Radfahrer, Leistung.',
+      powerHint: 'Deine Tretleistung ohne Motor, im Schnitt über 5 bis 10 Minuten.',
+      powerTip: 'So misst du sie: Motor ausschalten, 5 bis 10 Minuten gleichmäßig bergauf fahren und die Fahrt aufzeichnen. Der Wert steht danach in der Avinox-App unter Fahrdaten, Radfahrer, Leistung.',
+      infoAria: 'Erklärung anzeigen',
+      rangeNote: 'Über die Reichweite sagt der Rechner nichts. Sie hängt von Akku, Strecke und Fahrweise ab.',
+      speedNote: 'Über 25 km/h unterstützt der Motor nicht mehr.',
       cadence: 'Lieblings-Trittfrequenz', unitRpm: 'U/min',
       gearSummary: 'Über den Gang bei 25 km/h bestimmen',
       gearQuestion: 'In welchem Gang fährst du Tempo 25 am liebsten?',
       ring: function (n) { return n + 'er Kettenblatt'; }, ringAria: 'Kettenblatt', gearAria: 'Gang',
       gearPick: 'Gang wählen',
       gearOpt: function (g, teeth) { return g + '. Gang (' + teeth + ' Zähne)'; },
-      scope: 'Umfang', scopeFour: '4 Modi', scopeAll: 'Alle Modi',
-      focus: 'Ausrichtung', pAllround: 'Alleskönner', pLong: 'Langstrecke', pPower: 'Power',
+      scope: 'Anzahl Modi', scopeFour: '4 Modi', scopeAll: 'Alle Modi',
+      focus: 'Abstimmung', pAllround: 'Alleskönner', pLong: 'Langstrecke', pPower: 'Power',
       h2settings: 'Einstellungen für die Avinox Ride App',
       copyBtn: 'Als Text kopieren', copied: 'Kopiert', copyFallback: 'Text markiert, jetzt kopieren', copyAria: 'Setup als Text',
       h2power: 'Motorleistung nach Trittfrequenz',
@@ -842,31 +863,31 @@ var AvinoxCalc = (function () {
       thMode: 'Modus', thAL: 'Assist Level', thW: 'max. Watt', thNm: 'max. Nm',
       thMotorAt: function (cad) { return 'Motor bei ' + cad + ' U/min'; },
       zones: { low: 'Low · Reichweite', mid: 'Mid · Tour und Trail', high: 'High · volle Leistung' },
-      tagNew: 'neu anlegen', tagFixed: 'fest',
+      tagNew: 'neu anlegen', tagFixed: 'nicht einstellbar',
       pct: function (a, b) { return b == null ? a + ' %' : a + ' – ' + b + ' %'; },
-      legend: function (cad, pow, scale) { return 'Balken: Motorleistung bei ' + cad + ' U/min und ' + pow + ' W Eigenleistung, Skala bis ' + scale + ' W. Bei AUTO und TRAIL zeigt der kräftige Teil die Leistung im Flachen, der helle die am Anstieg.'; },
+      legend: function (cad, pow, scale) { return 'Der Balken zeigt, was der Motor bei ' + cad + ' U/min und ' + pow + ' W Eigenleistung liefert, auf einer Skala bis ' + scale + ' W. Bei AUTO und TRAIL steht der kräftig gefärbte Teil für das Flache, der blassere für den Anstieg. W/kg ist die Motorleistung je Kilogramm Gesamtgewicht. Je höher, desto steiler kommst du hoch.'; },
       alLabel: 'Assist Level', thRpm: 'U/min', thFlat: 'Watt flach', thClimb: 'Watt Anstieg', thMotor: 'Watt Motor',
       nNm: function (cad, now, max, rpm) { return 'Bei ' + cad + ' U/min liegen ' + now + ' W an. Die vollen ' + max + ' W gibt es ab ' + rpm + ' U/min.'; },
       nAl: function (pow, al, max) { return 'Mit ' + pow + ' W Eigenleistung liefert der Motor bis zu ' + al + ' W. Die ' + max + ' W sind die Obergrenze, wenn du stärker trittst.'; },
       nBelow: function (a, b) { return 'Unter dem Zielbereich von ' + a + ' bis ' + b + ' W/kg. Mehr geht mit diesem Gewicht und dieser Trittfrequenz nicht.'; },
       nBand: function (a, b) { return 'Zielbereich ' + a + ' bis ' + b + ' W/kg.'; },
       nMin: 'Auf den kleinsten Wert gesetzt, den der Modus zulässt.',
-      nSpread: 'Drehmoment 15 Nm unter der nächsten Stufe, damit sich die starken Modi unterscheiden.',
+      nSpread: 'Drehmoment 15 Nm unter dem nächsten Modus, damit sich die starken Modi unterscheiden.',
       nFull: 'Die eingestellte Wattgrenze liegt bei deiner Trittfrequenz voll an.',
       nBoost: function (w, rpm) { return 'Nicht einstellbar, für höchstens 60 Sekunden. Volle ' + w + ' W ab ' + rpm + ' U/min.'; },
       motorHint: function (nm, w, bnm, bw) { return 'In den Modi bis ' + nm + ' Nm und ' + w + ' W, im Boost ' + bnm + ' Nm und ' + bw + ' W.'; },
-      scopeAllHint: function (n, names) { return n + ' Stufen wie im Blatt „Generelles Setup“: ' + names + '.'; },
+      scopeAllHint: function (n, names) { return n + ' Modi wie im Blatt „Generelles Setup“: ' + names + '.'; },
       scopeFourHint: 'Die vier Werksmodi ECO, AUTO, TRAIL und TURBO.',
-      profileHint: { allround: 'Lange Strecken und Spaß im Gelände mit einem Setup.', long: 'Für mehr als 150 km und 2.000 hm mit einer Akkuladung.', power: 'Für Events oder maximalen Spaß.' },
+      profileHint: { allround: 'Lange Strecken und Spaß im Gelände mit einem Setup.', long: 'Ausgelegt auf sehr lange Touren, im Guide über 150 km und 2.000 hm.', power: 'Für Events oder maximalen Spaß.' },
       rules: function (kg, cad, pow) { return [
         '<b>max. Watt</b> = Zielwert in Watt je kg Gesamtgewicht × ' + kg + ' kg, gerundet auf 50 W und begrenzt auf das, was Motor und Modus zulassen.',
-        '<b>max. Nm</b> = max. Watt ÷ ' + cad + ' U/min × 9,55, aufgerundet auf die nächste 5er-Stufe. So liegt die Wattgrenze bei deiner Trittfrequenz an.',
-        '<b>Assist Level</b> = max. Watt ÷ ' + pow + ' W Eigenleistung. Gewählt wird die nächsthöhere Stufe, die diese Unterstützung liefert.',
+        '<b>max. Nm</b> = max. Watt ÷ ' + cad + ' U/min × 9,55, aufgerundet auf volle 5 Nm. So liegt die Wattgrenze bei deiner Trittfrequenz an.',
+        '<b>Assist Level</b> = max. Watt ÷ ' + pow + ' W Eigenleistung. Gewählt wird der nächsthöhere Level, der diese Unterstützung liefert.',
         'AUTO und TRAIL bekommen einen Bereich: der obere Wert aus der Rechnung, der untere schließt an den Modus darunter an.' ]; },
-      rule5: function (names) { return 'Bei allen Modi bleiben die Reichweiten-Stufen (' + names + ') mit dem Assist Level bewusst unter der Wattgrenze. Die stärkste Stufe nutzt das Maximum des Motors und bekommt einen Assist Level Reserve.'; },
-      tipsLadder: ['Die mit „neu anlegen“ markierten Stufen in der Avinox Ride App als zusätzliche Modi mit Name und Farbe anlegen und die Reihenfolge wie oben einrichten.',
-        'Im Flachen in eine der drei unteren Stufen schalten. Das bringt die größte Reichweite.',
-        'Nachlauf in den starken Modi von einer mittleren Einstellung aus herantasten. Mit langem Nachlauf schiebt das Bike in engen Kurven bergauf weiter.'],
+      rule5: function (names) { return 'Bei „Alle Modi“ bleiben die Reichweiten-Modi (' + names + ') mit dem Assist Level bewusst unter der Wattgrenze. Der stärkste Modus nutzt das Maximum des Motors und bekommt einen Level Reserve.'; },
+      tipsLadder: ['Die mit „neu anlegen“ markierten Modi in der Avinox Ride App als zusätzliche Modi mit Name und Farbe anlegen und die Reihenfolge wie oben einrichten.',
+        'Im Flachen in einen der drei unteren Modi schalten. Das bringt die größte Reichweite.',
+        'Den Nachlauf (wie lange der Motor nach dem Treten weiterschiebt) in den starken Modi von einer mittleren Einstellung aus herantasten. Mit langem Nachlauf schiebt das Bike in engen Kurven bergauf weiter.'],
       tipsFour: ['Reihenfolge der Modi in der App auf ECO, AUTO, TRAIL, TURBO stellen. Dann schaltest du von schwach nach stark.',
         'Mit Echtzeit-Tuning änderst du den Assist Level unterwegs vom Lenker aus.'],
       level: 'Level',
@@ -874,11 +895,11 @@ var AvinoxCalc = (function () {
       unitGrade: 'Steigung', unitAria: 'Anzeige', thGrade: 'Steigung',
       speedAt: function (v) { return 'bei ' + v + ' km/h'; }, speedLess: 'Tempo senken', speedMore: 'Tempo erhöhen',
       gradeTxt: function (p) { return 'ca. ' + p + ' %'; }, gradeMax: '> 40 %', gradeMin: '< 1 %',
-      gradeShort: function (kg, v) { return 'Die Steigung ist eine Schätzung: gerechnet mit ' + kg + ' kg Gesamtgewicht bei ' + v + ' km/h, auf festem Boden und im passenden Gang.'; },
+      gradeShort: function (kg, v, pow) { return 'Bis zu dieser Steigung hältst du mit dem jeweils gewählten Modus ' + v + ' km/h, wenn du selbst ' + pow + ' W trittst. Wird es steiler, wirst du langsamer oder brauchst den nächsten Modus. Das ist eine Schätzung für ' + kg + ' kg Gesamtgewicht, festen Boden und den passenden Gang.'; },
       gradeNote: function (v) { return 'So wird die Steigung geschätzt: aus Eigenleistung plus Motorleistung und Gesamtgewicht bei ' + v + ' km/h, mit Rollwiderstand 0,015, Luftwiderstandsfläche 0,6 m² und 4 % Verlust im Antrieb. Das gilt für festen Untergrund und setzt den passenden Gang voraus. Auf losem Boden ist es weniger.'; },
-      chkAria: function (m) { return m + ' als übertragen abhaken'; },
-      progress: function (n, t) { return n + ' von ' + t + ' Stufen in die Avinox Ride App übertragen.'; },
-      progressHint: 'Hak eine Stufe ab, sobald du sie eingetragen hast. Ändert sich einer ihrer Werte, verschwindet der Haken wieder. Das Dreieck rechts öffnet die Tabelle nach Trittfrequenz und das Anpassen von Hand.',
+      chkAria: function (m) { return m + ' als eingetragen abhaken'; },
+      progress: function (n, t) { return n + ' von ' + t + ' Modi von Hand in die Avinox Ride App eingetragen.'; },
+      progressHint: 'Hak einen Modus ab, sobald du ihn eingetragen hast. Ändert sich einer seiner Werte, verschwindet der Haken wieder. Das Dreieck rechts öffnet die Tabelle nach Trittfrequenz und das Anpassen von Hand.',
       clearChecks: 'Haken entfernen',
       profTitle: 'Profile', profAdd: '+ Neues Profil', profSave: 'Speichern', profDiscard: 'Verwerfen', cancel: 'Abbrechen', close: 'Schließen',
       profIntro: 'Speichere deine Eingaben unter einem Namen, zum Beispiel für mehrere Fahrer oder Bikes.',
@@ -898,17 +919,17 @@ var AvinoxCalc = (function () {
       sharedText: 'Du siehst ein geteiltes Setup aus einem Link.', sharedKeep: ' Deine eigenen Eingaben und Profile sind unverändert.', sharedBack: 'Zurück zu meinen Eingaben',
       shareBtn: 'Link teilen', shareCopied: 'Link kopiert', shareFallback: 'Link markiert, jetzt kopieren', printBtn: 'Druckansicht',
       cmpTitle: 'Vergleich', cmpSub: 'Stell ein zweites Setup daneben. Abweichungen sind farbig, AL steht für Assist Level.', cmpLabel: 'Vergleichen mit', cmpOff: 'Kein Vergleich',
-      cmpFocus: function (f) { return 'Ausrichtung ' + f; }, cmpProf: function (n) { return 'Profil ' + n; }, cmpSaved: function (n) { return 'Profil ' + n + ', gespeicherter Stand'; },
+      cmpFocus: function (f) { return 'Abstimmung ' + f; }, cmpProf: function (n) { return 'Profil ' + n; }, cmpSaved: function (n) { return 'Profil ' + n + ', gespeicherter Stand'; },
       cmpCurrent: 'Aktuell', cmpNone: 'Speichere ein zweites Profil, dann kannst du es hier danebenstellen.',
       sheetTitle: function (m) { return 'Setup für Avinox ' + m; }, sheetBack: 'Zurück', sheetPrint: 'Drucken',
       sheetHint: 'Zum Drucken oder als PDF sichern. Unterwegs reicht auch ein Bildschirmfoto.', sheetAdj: 'von Hand angepasst', sheetTick: 'eingetragen',
       sheetStart: 'Die Werte sind Startpunkte. Stimm sie nach Fahrgefühl nach.',
       storeNote: ' Eingaben und Profile liegen nur in deinem Browser. Wer die Browserdaten löscht, löscht auch sie.',
-      adv: 'Erweitert', advHint: 'Abhaken beim Übertragen, Werte von Hand nachstellen, Steigung statt W/kg, Vergleich',
+      adv: 'Erweitert', advHint: 'Abhaken beim Eintragen, Werte von Hand nachstellen, Steigung statt W/kg, Vergleich',
       adjOpen: function (m) { return m + ': Tabelle und Anpassen'; }, adjTag: 'angepasst',
       adjAl: 'Assist Level', adjAlLo: 'Assist Level von', adjAlHi: 'Assist Level bis', adjW: 'max. Watt', adjNm: 'max. Nm',
       adjCalc: function (v) { return 'berechnet: ' + v; }, adjReset: 'Zurücksetzen', less: 'verringern', more: 'erhöhen',
-      adjHint: 'Gespeichert wird die Abweichung vom berechneten Wert. Sie bleibt erhalten, wenn du deine Eingaben änderst.',
+      adjHint: 'Der Rechner merkt sich, um wie viel du verstellt hast, zum Beispiel 5 Nm weniger. Änderst du später Gewicht oder Trittfrequenz, rechnet er neu und zieht die 5 Nm wieder ab.',
       nOver: function (n) { return 'Von Hand stärker eingestellt als ' + n + '.'; },
       shareAdj: ' (angepasst)',
       shareHead: function (m, kg, cad, pow) { return 'Avinox ' + m + ' Setup (' + kg + ' kg gesamt, ' + cad + ' U/min, ' + pow + ' W Eigenleistung)'; },
@@ -929,14 +950,18 @@ var AvinoxCalc = (function () {
       weightHint: 'Bike with everything mounted on it. Rider ready to ride with clothing, helmet and backpack.',
       total: 'Total weight',
       power: 'Rider power', unitW: 'W',
-      powerHint: 'Your average over 5 to 10 minutes on a climb, motor off. The Avinox app lists it in the ride data as the rider\'s power.',
+      powerHint: 'Your own pedalling power without the motor, averaged over 5 to 10 minutes.',
+      powerTip: 'How to measure it: switch the motor off, ride uphill at a steady pace for 5 to 10 minutes and record the ride. Afterwards the Avinox app lists the value in the ride data as the rider\'s power.',
+      infoAria: 'Show explanation',
+      rangeNote: 'The calculator says nothing about range. It depends on battery, route and riding style.',
+      speedNote: 'Above 25 km/h the motor no longer assists.',
       cadence: 'Preferred cadence', unitRpm: 'rpm',
       gearSummary: 'Work it out from your gear at 25 km/h',
       gearQuestion: 'Which gear do you prefer at 25 km/h?',
       ring: function (n) { return n + 'T chainring'; }, ringAria: 'Chainring', gearAria: 'Gear',
       gearPick: 'Choose gear',
       gearOpt: function (g, teeth) { return 'Gear ' + g + ' (' + teeth + ' teeth)'; },
-      scope: 'Scope', scopeFour: '4 modes', scopeAll: 'All modes',
+      scope: 'Number of modes', scopeFour: '4 modes', scopeAll: 'All modes',
       focus: 'Focus', pAllround: 'All-rounder', pLong: 'Long range', pPower: 'Power',
       h2settings: 'Settings for the Avinox Ride app',
       copyBtn: 'Copy as text', copied: 'Copied', copyFallback: 'Text selected, copy it now', copyAria: 'Setup as text',
@@ -954,31 +979,31 @@ var AvinoxCalc = (function () {
       thMode: 'Mode', thAL: 'Assist level', thW: 'max. watts', thNm: 'max. Nm',
       thMotorAt: function (cad) { return 'Motor at ' + cad + ' rpm'; },
       zones: { low: 'Low · range', mid: 'Mid · touring and trail', high: 'High · full power' },
-      tagNew: 'create new', tagFixed: 'fixed',
+      tagNew: 'create new', tagFixed: 'not adjustable',
       pct: function (a, b) { return b == null ? a + '%' : a + '–' + b + '%'; },
-      legend: function (cad, pow, scale) { return 'Bars: motor power at ' + cad + ' rpm and ' + pow + ' W rider power, scale up to ' + scale + ' W. For AUTO and TRAIL the solid part is the power on the flat, the light part the power on a climb.'; },
+      legend: function (cad, pow, scale) { return 'The bar shows what the motor delivers at ' + cad + ' rpm and ' + pow + ' W rider power, on a scale up to ' + scale + ' W. For AUTO and TRAIL the solid part stands for the flat, the paler part for a climb. W/kg is motor power per kilogram of total weight. The higher it is, the steeper you can climb.'; },
       alLabel: 'Assist level', thRpm: 'rpm', thFlat: 'Watts flat', thClimb: 'Watts climbing', thMotor: 'Motor watts',
       nNm: function (cad, now, max, rpm) { return 'At ' + cad + ' rpm you get ' + now + ' W. The full ' + max + ' W are available from ' + rpm + ' rpm.'; },
       nAl: function (pow, al, max) { return 'With ' + pow + ' W of rider power the motor adds up to ' + al + ' W. The ' + max + ' W are the ceiling when you pedal harder.'; },
       nBelow: function (a, b) { return 'Below the target range of ' + a + ' to ' + b + ' W/kg. That is the most this weight and cadence allow.'; },
       nBand: function (a, b) { return 'Target range ' + a + ' to ' + b + ' W/kg.'; },
       nMin: 'Set to the lowest value the mode allows.',
-      nSpread: 'Torque set 15 Nm below the next step so the strong modes stay distinct.',
+      nSpread: 'Torque set 15 Nm below the next mode so the strong modes stay distinct.',
       nFull: 'The watt limit is fully available at your cadence.',
       nBoost: function (w, rpm) { return 'Not adjustable, for 60 seconds at most. Full ' + w + ' W from ' + rpm + ' rpm.'; },
       motorHint: function (nm, w, bnm, bw) { return 'Up to ' + nm + ' Nm and ' + w + ' W in the modes, ' + bnm + ' Nm and ' + bw + ' W in Boost.'; },
-      scopeAllHint: function (n, names) { return n + ' steps as in the “Generelles Setup” sheet: ' + names + '.'; },
+      scopeAllHint: function (n, names) { return n + ' modes as in the “Generelles Setup” sheet: ' + names + '.'; },
       scopeFourHint: 'The four stock modes ECO, AUTO, TRAIL and TURBO.',
-      profileHint: { allround: 'Long rides and fun off-road with one setup.', long: 'For more than 150 km and 2,000 m of climbing on one charge.', power: 'For events or maximum fun.' },
+      profileHint: { allround: 'Long rides and fun off-road with one setup.', long: 'Designed for very long rides, in the guide more than 150 km and 2,000 m of climbing.', power: 'For events or maximum fun.' },
       rules: function (kg, cad, pow) { return [
         '<b>Max. watts</b> = target in watts per kg of total weight × ' + kg + ' kg, rounded to 50 W and capped at what the motor and the mode allow.',
-        '<b>Max. Nm</b> = max. watts ÷ ' + cad + ' rpm × 9.55, rounded up to the next step of 5. That makes the watt limit available at your cadence.',
+        '<b>Max. Nm</b> = max. watts ÷ ' + cad + ' rpm × 9.55, rounded up to a full 5 Nm. That makes the watt limit available at your cadence.',
         '<b>Assist level</b> = max. watts ÷ ' + pow + ' W rider power. The next higher level that delivers this assistance is chosen.',
         'AUTO and TRAIL get a range: the upper value from the calculation, the lower one follows on from the mode below.' ]; },
-      rule5: function (names) { return 'With all modes, the range steps (' + names + ') deliberately keep the assist level below the watt limit. The strongest step uses the motor\'s maximum and gets one assist level in reserve.'; },
-      tipsLadder: ['Create the steps marked “create new” as additional modes in the Avinox Ride app, with name and colour, and arrange them in the order shown above.',
-        'On the flat, switch to one of the three lowest steps. That gives the most range.',
-        'In the strong modes, approach the motor overrun setting from a medium value. With a long overrun the bike keeps pushing in tight uphill corners.'],
+      rule5: function (names) { return 'With “All modes”, the range modes (' + names + ') deliberately keep the assist level below the watt limit. The strongest mode uses the motor\'s maximum and gets one level in reserve.'; },
+      tipsLadder: ['Create the modes marked “create new” as additional modes in the Avinox Ride app, with name and colour, and arrange them in the order shown above.',
+        'On the flat, switch to one of the three lowest modes. That gives the most range.',
+        'In the strong modes, approach the overrun setting (how long the motor keeps pushing after you stop pedalling) from a medium value. With a long overrun the bike keeps pushing in tight uphill corners.'],
       tipsFour: ['Set the mode order in the app to ECO, AUTO, TRAIL, TURBO. Then you shift from weak to strong.',
         'With real-time tuning you change the assist level from the handlebar while riding.'],
       level: 'Level',
@@ -986,11 +1011,11 @@ var AvinoxCalc = (function () {
       unitGrade: 'Gradient', unitAria: 'Display', thGrade: 'Gradient',
       speedAt: function (v) { return 'at ' + v + ' km/h'; }, speedLess: 'Lower speed', speedMore: 'Raise speed',
       gradeTxt: function (p) { return 'approx. ' + p + '%'; }, gradeMax: '> 40%', gradeMin: '< 1%',
-      gradeShort: function (kg, v) { return 'The gradient is an estimate: worked out with ' + kg + ' kg total weight at ' + v + ' km/h, on firm ground and in a suitable gear.'; },
+      gradeShort: function (kg, v, pow) { return 'Up to this gradient the selected mode holds ' + v + ' km/h while you pedal with ' + pow + ' W yourself. If it gets steeper, you slow down or need the next mode. This is an estimate for ' + kg + ' kg total weight, firm ground and a suitable gear.'; },
       gradeNote: function (v) { return 'How the gradient is estimated: from rider power plus motor power and total weight at ' + v + ' km/h, with a rolling resistance of 0.015, a drag area of 0.6 m² and 4% drivetrain loss. This holds for firm ground and assumes a suitable gear. On loose ground it is less.'; },
       chkAria: function (m) { return 'Tick ' + m + ' as entered'; },
-      progress: function (n, t) { return n + ' of ' + t + ' steps entered in the Avinox Ride app.'; },
-      progressHint: 'Tick a step once you have entered it. If one of its values changes, the tick disappears. The triangle on the right opens the table by cadence and manual adjustment.',
+      progress: function (n, t) { return n + ' of ' + t + ' modes entered by hand in the Avinox Ride app.'; },
+      progressHint: 'Tick a mode once you have entered it. If one of its values changes, the tick disappears. The triangle on the right opens the table by cadence and manual adjustment.',
       clearChecks: 'Clear ticks',
       profTitle: 'Profiles', profAdd: '+ New profile', profSave: 'Save', profDiscard: 'Discard', cancel: 'Cancel', close: 'Close',
       profIntro: 'Save your inputs under a name, for example for several riders or bikes.',
@@ -1016,11 +1041,11 @@ var AvinoxCalc = (function () {
       sheetHint: 'Print it or save it as a PDF. On the trail a screenshot will do.', sheetAdj: 'adjusted by hand', sheetTick: 'entered',
       sheetStart: 'The values are starting points. Fine-tune them by feel.',
       storeNote: ' Inputs and profiles live only in your browser. Clearing the browser data deletes them too.',
-      adv: 'Advanced', advHint: 'Tick off steps, adjust values by hand, gradient instead of W/kg, comparison',
+      adv: 'Advanced', advHint: 'Tick off modes as you enter them, adjust values by hand, gradient instead of W/kg, comparison',
       adjOpen: function (m) { return m + ': table and adjustment'; }, adjTag: 'adjusted',
       adjAl: 'Assist level', adjAlLo: 'Assist level from', adjAlHi: 'Assist level to', adjW: 'max. watts', adjNm: 'max. Nm',
       adjCalc: function (v) { return 'calculated: ' + v; }, adjReset: 'Reset', less: 'decrease', more: 'increase',
-      adjHint: 'The deviation from the calculated value is stored. It stays when you change your inputs.',
+      adjHint: 'The calculator remembers by how much you changed a value, for example 5 Nm less. If you later change weight or cadence, it recalculates and takes the 5 Nm off again.',
       nOver: function (n) { return 'Manually set stronger than ' + n + '.'; },
       shareAdj: ' (adjusted)',
       shareHead: function (m, kg, cad, pow) { return 'Avinox ' + m + ' setup (' + kg + ' kg total, ' + cad + ' rpm, ' + pow + ' W rider power)'; },
@@ -1074,6 +1099,7 @@ var AvinoxCalc = (function () {
     $('progressBox').hidden = !view.adv;
     $('progressHint').hidden = !view.adv;
     $('speedBox').hidden = unit() !== 'grade';
+    $('speedNote').hidden = unit() !== 'grade';
     $('speedText').textContent = T.speedAt(view.speed);
     $('speed-less').disabled = view.speed <= 5;
     $('speed-more').disabled = view.speed >= 24;
@@ -1090,6 +1116,7 @@ var AvinoxCalc = (function () {
     $('foot2').textContent = (PAGES ? T.foot2Pages : T.foot2) + T.storeNote;
     Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) { el.textContent = T[el.getAttribute('data-i18n')]; });
     $('copy').textContent = T.copyBtn;
+    Array.prototype.forEach.call(document.querySelectorAll('.infobtn'), function (el) { el.setAttribute('aria-label', T.infoAria); });
     $('share').textContent = T.shareBtn;
     $('profName').setAttribute('aria-label', T.profNameAria);
     $('profName').setAttribute('placeholder', T.profNamePh);
@@ -1323,7 +1350,8 @@ var AvinoxCalc = (function () {
     $('summary').textContent = T.summary(M.label, one(r.kg), inp.cadence, w(inp.power));
     if (openMode && openMode !== 'BOOST' && !r.modes.some(function (m) { return m.name === openMode; })) openMode = null;
 
-    var h = '<div class="row head">' + (adv ? '<span></span>' : '') + '<span class="label">' + T.thMode + '</span><span class="label">' + T.thAL + '</span><span class="label">' + T.thW + '</span><span class="label">' + T.thNm + '</span><span class="label meterhead">' + T.thMotorAt(inp.cadence) + '</span>' + (adv ? '<span></span>' : '') + '</div>';
+    var h = '<div class="row head">' + (adv ? '<span></span>' : '') + '<span class="label">' + T.thMode + '</span><span class="label">' + T.thAL + '</span><span class="label">' + T.thW + '</span><span class="label">' + T.thNm + '</span><span class="label meterhead tiphost">' + T.thMotorAt(inp.cadence) +
+      '<button type="button" class="infobtn" aria-expanded="false" aria-controls="legendLine" aria-label="' + T.infoAria + '">i</button><span class="tip" id="legendLine">' + T.legend(inp.cadence, w(inp.power), w(scale)) + '</span></span>' + (adv ? '<span></span>' : '') + '</div>';
     var zone = null;
     r.modes.forEach(function (m, idx) {
       var isDone = adv && checks[m.name] === sig(m), isOpen = openMode === m.name, d = m.delta;
@@ -1352,10 +1380,9 @@ var AvinoxCalc = (function () {
     $('list').innerHTML = h;
     $('list').classList.toggle('basic', !adv);
     if (refocus) { var el = $('list').querySelector(refocus); if (el && !el.disabled) el.focus(); refocus = null; }
-    $('legendLine').textContent = T.legend(inp.cadence, w(inp.power), w(scale));
     $('gradeNote').hidden = unit() !== 'grade';
     $('gradeShort').hidden = unit() !== 'grade';
-    $('gradeShort').textContent = T.gradeShort(one(r.kg), view.speed);
+    $('gradeShort').textContent = T.gradeShort(one(r.kg), view.speed, w(inp.power));
     $('gradeNote').textContent = T.gradeNote(view.speed);
     $('progressText').textContent = T.progress(done, r.modes.length);
     $('clearChecks').hidden = done === 0;
@@ -1454,7 +1481,7 @@ var AvinoxCalc = (function () {
     h += '<tr><td></td><td><i class="sw" style="background:#9aa0a8"></i>BOOST<small>' + T.tagFixed + '</small></td><td>15<small>' + T.pct(b.pct) + '</small></td><td>' + w(b.watt) + '</td><td>' + b.nm + '</td>' +
       '<td class="opt soft">' + w(b.climb) + ' W</td><td class="soft">' + lastCol(b.climb, b.wkg, inp, r.kg) + '</td></tr></tbody></table><div class="foot">';
     if (any) h += '<p>* ' + T.sheetAdj + '</p>';
-    if (grade) h += '<p>' + T.gradeShort(one(r.kg), view.speed) + '</p>';
+    if (grade) h += '<p>' + T.gradeShort(one(r.kg), view.speed, w(inp.power)) + '</p>';
     h += '<p>' + T.sheetStart + '</p><p>' + T.foot1 + '</p><p>' + SITE.replace(/^https:\/\//, '').replace(/\/$/, '') + '</p></div>';
     $('sheet').innerHTML = h;
   }
@@ -1744,6 +1771,21 @@ var AvinoxCalc = (function () {
   $('sheetBack').addEventListener('click', closeSheet);
   $('sheetPrint').addEventListener('click', function () { try { window.print(); } catch (e) {} });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheetOpen) closeSheet(); });
+
+  // Erklärungen hinter den i-Knöpfen: am PC beim Drüberfahren (Stil), sonst per Klick oder Antippen.
+  // Ein zweiter Klick, ein Klick daneben oder Escape schließt sie wieder.
+  function closeTips(except) {
+    Array.prototype.forEach.call(document.querySelectorAll('.infobtn[aria-expanded="true"]'), function (el) { if (el !== except) el.setAttribute('aria-expanded', 'false'); });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target, btn = t.closest ? t.closest('.infobtn') : null;
+    if (btn) {
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      closeTips(btn);
+      btn.setAttribute('aria-expanded', String(!open));
+    } else if (!(t.closest && t.closest('.tip'))) closeTips(null);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTips(null); });
 
   function chooseLang(l) {
     setLang(l);

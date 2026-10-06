@@ -1,11 +1,8 @@
 package io.github.th3s1nc.setuprechner.ui
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.webkit.WebView
@@ -38,6 +35,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -113,6 +114,57 @@ internal fun Group(title: String, content: @Composable () -> Unit) {
         Text(title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
         content()
     }
+}
+
+/** Wie [Group], mit einem i-Knopf neben der Überschrift, der eine Erklärung auf- und zuklappt. */
+@Composable
+internal fun InfoGroup(title: String, info: String, content: @Composable () -> Unit) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            InfoButton(open) { open = !open }
+        }
+        if (open) InfoText(info)
+        content()
+    }
+}
+
+/** Kleiner i-Knopf: zeigt oder verbirgt eine Erklärung. */
+@Composable
+internal fun InfoButton(open: Boolean, onToggle: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    val tint = if (open) cs.primary else cs.onSurfaceVariant
+    val label = stringResource(R.string.info_label)
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .clip(CircleShape)
+            .clickable(role = Role.Button, onClick = onToggle)
+            .semantics { contentDescription = label },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier.size(20.dp).border(1.dp, tint, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("i", fontSize = 12.sp, lineHeight = 12.sp, fontWeight = FontWeight.Bold, color = tint)
+        }
+    }
+}
+
+/** Aufgeklappte Erklärung zu einem i-Knopf. */
+@Composable
+internal fun InfoText(text: String) {
+    val cs = MaterialTheme.colorScheme
+    Text(
+        text, fontSize = 13.sp, lineHeight = 19.sp, color = cs.onSurface,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(FieldShape)
+            .background(cs.surfaceVariant)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    )
 }
 
 /** Kleine Beschriftung in Versalien, z. B. Spaltenköpfe. */
@@ -407,15 +459,6 @@ internal fun shareText(context: Context, text: String) {
         putExtra(Intent.EXTRA_TEXT, text)
     }
     context.startActivity(Intent.createChooser(send, context.getString(R.string.share_chooser)))
-}
-
-internal fun copyText(context: Context, text: String) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.clip_label), text))
-    // Ab Android 13 zeigt das System selbst eine Bestätigung.
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-        Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
-    }
 }
 
 // ---------------------------------------------------------------- Dateien und Drucken

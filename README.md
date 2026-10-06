@@ -11,9 +11,9 @@ An unofficial setup calculator ("Setup-Rechner für Avinox") for Avinox M1, M2 a
 - For each mode, motor power by cadence, with a note when the watt limit cannot be reached at your own cadence.
 - Profiles for several riders, each with its own name and inputs. Profiles can be backed up to a file and loaded again; the file is the same in the app and in the web version.
 - Battery choice for the M2S: 1,500 W in Boost with FP700/RS800, 1,300 W with FS800/FS600.
-- Share or copy the setup as text, share it as a link that opens the web version with the same values, or print it as a compact setup card with tick boxes.
+- Share the setup as text; the last line is a link that opens the web version with the same values. Or print it as a compact setup card with tick boxes (also as a PDF).
 - Dark and light design.
-- Behind the *Advanced* switch: a checklist for entering the values in the Avinox Ride app, manual adjustment of each value in the app's own steps (assist level 1, watts 50, Nm 5), estimated gradient instead of W/kg, and a side-by-side comparison with another focus or another profile.
+- Behind the *Advanced* switch: a checklist for entering the values in the Avinox Ride app, manual adjustment of each value in the app's own steps (assist level 1, watts 50, Nm 5), estimated gradient instead of W/kg, and a side-by-side comparison with another focus or another profile. Small “i” buttons explain rider power, the bars and W/kg.
 - No internet access, no ads, no data collection. Your inputs stay on the device.
 - User interface in English and German. The app follows the phone's language and can be switched under Info.
 

@@ -114,11 +114,11 @@ private fun SetupContent(state: SetupState, input: SetupInput, onEdit: () -> Uni
         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = { copyText(context, text.share(result, input, state.saved.name)) }) { Text(stringResource(R.string.copy)) }
-        TextButton(onClick = { shareText(context, text.share(result, input, state.saved.name)) }) { Text(stringResource(R.string.share)) }
+        // Teilen verschickt das Setup als Text. Die letzte Zeile ist ein Link, der dieselben Werte im Web-Rechner öffnet.
         TextButton(onClick = {
-            shareText(context, text.shareHeader(result, input) + "\n" + Exchange.link(state.saved, state.activeAdjust))
-        }) { Text(stringResource(R.string.share_link)) }
+            val link = Exchange.link(state.saved, state.activeAdjust)
+            shareText(context, text.share(result, input, state.saved.name) + "\n" + context.getString(R.string.share_open_web, link))
+        }) { Text(stringResource(R.string.share)) }
         TextButton(onClick = {
             val html = text.sheetHtml(result, input, shownName, speed, text.today())
             if (!printHtml(context, html, context.getString(R.string.sheet_job, result.motor.label))) {
@@ -225,8 +225,6 @@ private fun SetupContent(state: SetupState, input: SetupInput, onEdit: () -> Uni
                 checked = null,
                 checkLabel = "",
                 onCheck = {},
-                // Mit Haken in der Liste bleibt links der Platz frei, damit die Namen untereinander stehen
-                indent = advanced,
                 isOpen = open == BOOST,
                 onToggle = { open = if (open == BOOST) "" else BOOST }
             ) {
@@ -254,7 +252,13 @@ private fun SetupContent(state: SetupState, input: SetupInput, onEdit: () -> Uni
         Hint(stringResource(R.string.progress_hint))
     }
 
-    Hint(stringResource(R.string.tap_hint, input.cadence.toString(), text.watt(scale)))
+    // Hinweis zum Aufklappen, dahinter ein i mit der Erklärung zu Balken und W/kg
+    var barsInfo by rememberSaveable { mutableStateOf(false) }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Hint(stringResource(R.string.tap_hint), Modifier.weight(1f))
+        InfoButton(barsInfo) { barsInfo = !barsInfo }
+    }
+    if (barsInfo) InfoText(stringResource(R.string.bars_info, input.cadence.toString(), text.watt(input.powerW), text.watt(scale)))
 
     if (advanced) CompareCard(state, result, input, text, speed)
 }
@@ -286,7 +290,8 @@ private fun AdvancedBar(state: SetupState, input: SetupInput, text: SetupText) {
                 onMinus = { state.stepSpeed(-1) },
                 onPlus = { state.stepSpeed(1) }
             )
-            Hint(stringResource(R.string.grade_short, text.plain(input.totalKg), state.speed.toString()))
+            Hint(stringResource(R.string.speed_note))
+            Hint(stringResource(R.string.grade_short, state.speed.toString(), text.watt(input.powerW), text.plain(input.totalKg)))
         }
     }
 }
@@ -321,7 +326,6 @@ private fun ModeRow(
     checked: Boolean?,
     checkLabel: String,
     onCheck: (Boolean) -> Unit,
-    indent: Boolean = false,
     isOpen: Boolean,
     onToggle: () -> Unit,
     details: @Composable () -> Unit
@@ -343,16 +347,19 @@ private fun ModeRow(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // BOOST hat kein Kästchen und wird nicht eingerückt, damit sein Etikett in eine Zeile passt
                     if (checked != null) CheckBox(checked, checkLabel, onCheck)
-                    else if (indent) Box(Modifier.size(36.dp))
                     Box(
                         Modifier
                             .size(14.dp)
                             .clip(RoundedCornerShape(3.dp))
                             .background(color)
                     )
-                    Text(name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = ink, maxLines = 1)
-                    if (tag != null) Tag(tag)
+                    // Etikett unter dem Namen, damit auch ein längeres wie "nicht einstellbar" Platz hat
+                    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = ink, maxLines = 1)
+                        if (tag != null) Tag(tag)
+                    }
                 }
                 Value(level, COL_LEVEL, if (levelChanged) cs.primary else ink)
                 Value(watt, COL_WATT, if (wattChanged) cs.primary else ink)

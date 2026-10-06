@@ -7,13 +7,13 @@ Ein inoffizieller Rechner für E-Bike-Antriebe Avinox M1, M2 und M2S. Aus Motor,
 > **Keine Verbindung** zu Avinox oder DJI. Produktnamen und Marken gehören ihren Inhabern und dienen nur der Beschreibung. **Keine Gewähr.** Die Werte sind Startpunkte und ersetzen nicht das Abstimmen nach Fahrgefühl.
 
 ## Was der Rechner kann
-- Vier Werksmodi (ECO, AUTO, TRAIL, TURBO) in den Ausrichtungen Alleskönner, Langstrecke und Power, oder alle Stufen mit Zusatzmodi (8 beim M1, 9 bei M2 und M2S).
+- Vier Werksmodi (ECO, AUTO, TRAIL, TURBO) in den Abstimmungen Alleskönner, Langstrecke und Power, oder alle Modi einschließlich der Zusatzmodi (8 beim M1, 9 bei M2 und M2S).
 - Je Modus die Motorleistung nach Trittfrequenz, mit Hinweis, wenn die Wattgrenze bei der eigenen Trittfrequenz nicht erreicht wird.
 - Profile für mehrere Fahrer, jedes mit eigenem Namen und eigenen Eingaben. Profile lassen sich als Datei sichern und wieder laden; die Datei ist in App und Web-Version dieselbe.
 - Akku-Auswahl beim M2S: im Boost 1.500 W mit FP700/RS800, 1.300 W mit FS800/FS600.
-- Setup als Text teilen oder kopieren, als Link teilen, der die Web-Version mit denselben Werten öffnet, oder als kompakte Setup-Karte mit Kästchen zum Abhaken drucken.
+- Setup als Text teilen; die letzte Zeile ist ein Link, der die Web-Version mit denselben Werten öffnet. Oder als kompakte Setup-Karte mit Kästchen zum Abhaken drucken (auch als PDF).
 - Dunkles und helles Design.
-- Hinter dem Schalter *Erweitert*: eine Checkliste für das Übertragen in die Avinox Ride App, Nachstellen jedes Werts von Hand in den Schritten der App (Assist Level 1, Watt 50, Nm 5), geschätzte Steigung statt W/kg und ein Vergleich mit einer anderen Ausrichtung oder einem anderen Profil.
+- Hinter dem Schalter *Erweitert*: eine Checkliste für das Übertragen in die Avinox Ride App, Nachstellen jedes Werts von Hand in den Schritten der App (Assist Level 1, Watt 50, Nm 5), geschätzte Steigung statt W/kg und ein Vergleich mit einer anderen Abstimmung oder einem anderen Profil. Kleine i-Knöpfe erklären Eigenleistung, Balken und W/kg.
 - Kein Internetzugriff, keine Werbung, keine Datensammlung. Die Eingaben bleiben auf dem Gerät.
 - Oberfläche auf Deutsch und Englisch. Die App folgt der Sprache des Handys und lässt sich unter Info umstellen.
 

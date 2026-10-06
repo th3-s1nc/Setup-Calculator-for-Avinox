@@ -16,7 +16,7 @@ Rechenweg und Assist-Level-Werte stammen aus dem Setup-Guide von Bernd Hemmersba
 - Rechner und Web-Version sind mit Zustimmung des Autors veröffentlicht.
 - Der Guide und die Blätter selbst sind nicht enthalten und nicht von der MIT-Lizenz dieses Projekts erfasst. Die Rechte daran liegen beim Autor.
 - Übernommen sind die Rechenschritte, die Zielwerte in Watt je kg Gesamtgewicht, die Namen und Farbcodes der Zusatzmodi und die Tabelle "Assist Level und Unterstützung". Diese Tabelle beruht auf Testfahrten des Autors mit dem M1 und ist von Avinox nicht bestätigt.
-- Die Zielwerte für die Zusatzmodi sind aus den Beispielen der Blätter abgeleitet. An einzelnen Stellen weicht der Rechner um eine Stufe von Werten ab, die dort von Hand gesetzt sind.
+- Die Zielwerte für die Zusatzmodi sind aus den Beispielen der Blätter abgeleitet. An einzelnen Stellen weicht der Rechner um einen Schritt von Werten ab, die dort von Hand gesetzt sind.
 - Die Eckdaten der Motoren (Nm und Watt in den Modi und im Boost) stammen aus den Blättern und aus öffentlichen Angaben. Beim M2 rechnet der Rechner im Boost mit 125 Nm wie in der Tabelle des Herstellers, im Blatt stehen 130 Nm. Beim M2S hängt die Spitzenleistung im Boost laut Hersteller vom Akku ab (1.500 W mit FP700/RS800, 1.300 W mit FS800/FS600).
 - Die Einstellbereiche der Modi sind für den M1 aus dem Guide übernommen. Für M2 und M2S sind sie angenommen, mit den Höchstwerten des jeweiligen Motors.
 - Die Steigung unter „Erweitert“ ist eine eigene Schätzung und stammt nicht aus dem Guide. Annahmen: Rollwiderstand 0,015, Luftwiderstandsfläche 0,6 m², 4 % Verlust im Antrieb, fester Untergrund, passender Gang.

@@ -2,10 +2,16 @@
 
 (Deutsch.)
 
-## Web-Version, 05.10.2026
-Nur `docs/index.html`, die App bleibt bei v1.9.1.
-- Mit „Erweitert“ steht die Tabelle nach Trittfrequenz jetzt wie in der App unter der aufgeklappten Stufe, neben dem Nachstellen von Hand. So zeigt sich jede Änderung sofort in der Tabelle. Auch BOOST lässt sich aufklappen.
-- Die Karten mit allen Tabellen untereinander gibt es weiter im Standardrechner.
+## v1.9.2
+Verständlichere Texte und kleine Hilfen, in App und Web-Version (`docs/index.html`).
+- „Anzahl Modi“ statt „Umfang“, „Abstimmung“ statt „Ausrichtung“, durchgehend „Modus“ und „Level“ statt „Stufe“, „von Hand eingetragen“ statt „übertragen“, „nicht einstellbar“ bei BOOST.
+- Neu: i-Knöpfe mit Erklärung bei der Eigenleistung (so misst man sie) und zur Liste (Balken und W/kg).
+- Steigung erklärt: bis zu dieser Steigung hält man mit dem gewählten Modus das Tempo, wenn man mit der eigenen Leistung tritt. Dazu der Hinweis, dass der Motor über 25 km/h nicht mehr unterstützt.
+- Neuer Hinweis bei den Eingaben: Über die Reichweite sagt der Rechner nichts.
+- Verständlicherer Satz beim Nachstellen von Hand.
+- App: Spaltenköpfe „max. W“ und „max. Nm“, Etikett „anlegen“ statt „neu“, Etiketten stehen unter dem Modusnamen.
+- App: nur noch ein Knopf „Teilen“. Er verschickt das Setup als Text, die letzte Zeile ist der Link zum Web-Rechner. „Kopieren“ und „Link teilen“ entfallen. „Drucken“ heißt „Drucken / PDF“.
+- Web-Version: Mit „Erweitert“ steht die Tabelle nach Trittfrequenz wie in der App unter dem aufgeklappten Modus, neben dem Nachstellen. Auch BOOST lässt sich aufklappen. Die Karten mit allen Tabellen gibt es weiter im Standardrechner.
 
 ## v1.9.1
 - Mit „Erweitert“ steht die Tabelle nach Trittfrequenz wieder direkt unter der aufgeklappten Stufe. Das Nachstellen von Hand folgt darunter, vorher stand es davor und schob die Tabelle aus dem Bild.
